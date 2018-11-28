@@ -1,3 +1,21 @@
 狼人杀-Werewolf kill
 
 #
+
+# 分配角色：
+server characters = {4:['citizen1','citizen2','wolf1','wolf2','witch'],5:[],6:[],7:[],8:[],9:[],10:[]}
+number = len(chat_group)
+game_roles = characters[number]
+for i in range(number):
+	game_roles.random.shuffle()
+	chat_group[I] = game_roles[I]
+
+villager, wolf, prophet, witch, hunter
+4:[villager*2, wolf, prophet]
+5:[villager*2, wolf, prophet, witch]
+6:[villager*2, wolf, prophet, witch, hunter]
+7:[villager*2, wolf*2, prophet, witch, hunter]
+8:[villager*3, wolf*2, prophet, witch, hunter]
+9:[villager*4, wolf*2, prophet, witch, hunter]
+10:[villager*5, wolf*3, prophet, witch, hunter]
+
