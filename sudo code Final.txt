@@ -47,26 +47,21 @@ villager, wolf, prophet, witch, hunter
 7:[villager*2, wolf*2, prophet, witch, hunter]
 8:[villager*3, wolf*2, prophet, witch, hunter]
 9:[villager*4, wolf*2, prophet, witch, hunter]
-10:[villager*5, wolf*3, prophet, witch, hunter]
-
-# 女巫：
-For user in Group:
-	if user.role == "witch":
-		self.out_msg += "Do you want to kill or save anyone? (Input kill or save or no)"
-	if "kill":
-		self.out_msg += "who do u wanna kill?"
-		if self.msg == playerNumber:
-			set_state: playerNumber.state = "dead"
-	elif "save":
-		self.out_msg += "who do u wanna save?"
-		if self.msg == playerNumber:
-			set_state: playerNumber.state = "alive"	
-	else:
-		continue
-	
+10:[villager*5, wolf*3, prophet, witch, hunter]	
 
 
 #开始游戏
+Infos_old = {}
+For i in users:
+	Infos_old[i] = i.status()
+
+#大循环：游戏胜利失败判定(Cecilia帮我写一下这一块的判定！！！！)：
+while True:
+	status = {}
+	for I in users:
+		status[i.role()] = i.status()
+	
+
 #角色行动 - 顺序：狼人 => 预言家 => 女巫 => 判定：（猎人）
 "Night is coming, please close your eyes"
 #狼人杀人：创建狼人小群：输出kill player
@@ -78,14 +73,75 @@ for user in Group:
 
 		for user in ChatGroupWolf:
 			user.disconnect()
+
 #预言家验人
 for user in Group:
 	if user.role == "prophet":
 		out_msg = "Choose a player to exam:"
 		out_msg = my_msg#player_number + " is " + my_msg.role
 
-#
-	
-	
 
+# 女巫选择杀人救人
+For user in Group:
+	if user.role == "witch":
+		self.out_msg += "Do you want to kill or save anyone? (Input kill or save or no)"
+	if "kill":
+		self.out_msg += "who do u wanna kill?"
+		if self.msg == playerNumber:
+			playerNumber.set_state("Dead")
+	elif "save":
+		self.out_msg += "who do u wanna save?"
+		if self.msg == playerNumber:
+			set_state: playerNumber.set_state("Alive")	
+	else:
+		continue
+
+#猎人判定
+For user in Group:
+	if user.role == "hunter":
+		if user.status == "Dead"
+		self.out_msg += "you've been killed, choose one player to revenge(revenge "playerNumber"), or pass(No)"
+		if self.msg[:7] == "revenge":
+			playerNumber = self.msg[8:]
+			playerNumber.set_state("Dead")
+		elif self.msg == "No":
+			continue
+
+#白天到来
+out_msg = "The morning has come, tonight:"
+Death = []
+Infos_new = {}
+For i in users:
+	Infos_new[i] = i.status()
+
+if Infos_new == Infos_old:
+	out_msg = "is a safe night."
+For i in users:
+	if Infos_old[i] != Infos_new[I]:
+		out_msg += i + " is " + i.status()
+
+		Death.append(i)
+
+#遗言环节
+For i in Death:
+	#i说话但是其他人无法说话
+	out_msg = input("The last words of "+ i + ":")
+	
+#发表意见
+For I in users:
+	if I.status == "Alive":
+	#i说话但是其他人无法说话
+	out_msg = input("Words from "+ i + ":")
+
+#投票环节
+
+Poll = {I:0 for I in users}
+
+if self.msg[:4] == "Poll":
+	Poll[self.mag[5:]] += 1
+
+max = 0
+For key, items in Poll.items():
+	
+	
 
