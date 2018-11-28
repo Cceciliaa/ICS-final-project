@@ -1,5 +1,27 @@
 狼人杀-Werewolf kill
+狼人杀（基于chatsystem）：
 
+server - 人数
+#type: g [room_number]
+
+If 房间人数4 - 10：
+	输入startgame
+	如果所有人都type Y:
+		game start
+Elif 房间人数小于4或大于10:
+	out_msg = "无法开始游戏（支持人数4-10人）"
+
+
+#分配角色：
+Characters = ["Wolf",""]
+
+Class Character(self, roll, status["Dead" or "Alive"]):
+	def __init__(self):
+		self.roll = roll
+		self.status = "Alive"
+	def set_status(self, new_status):
+		self.status = new_status
+	def set_
 #
 
 # 分配角色：
