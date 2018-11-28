@@ -12,17 +12,24 @@ Elif 房间人数小于4或大于10:
 	out_msg = "无法开始游戏（支持人数4-10人）"
 
 
-#分配角色：
+#分配角色Class：
 Characters = ["Wolf",""]
 
-Class Character(self, roll, status["Dead" or "Alive"]):
+Class Character(self, playerNumber, role, status["Dead" or "Alive"]):
 	def __init__(self):
-		self.roll = roll
+		self.playerNumber = playerNumber
+		self.role = role
 		self.status = "Alive"
+		
+	def set_number(self, number):
+		self.playerNumber = number
 	def set_status(self, new_status):
 		self.status = new_status
-	def set_
-#
+	def set_roll(self, new_roll):
+		self.roll = new_roll
+
+
+
 
 # 分配角色：
 server characters = {4:['citizen1','citizen2','wolf1','wolf2','witch'],5:[],6:[],7:[],8:[],9:[],10:[]}
@@ -57,4 +64,28 @@ For user in Group:
 	else:
 		continue
 	
+
+
+#开始游戏
+#角色行动 - 顺序：狼人 => 预言家 => 女巫 => 判定：（猎人）
+"Night is coming, please close your eyes"
+#狼人杀人：创建狼人小群：输出kill player
+for user in Group:
+	if user.role == "wolf":
+		user.join(ChatGroupWolf)
+	if my_msg == "kill" + playerNumber：
+		playerNumber.set_status("Dead")
+
+		for user in ChatGroupWolf:
+			user.disconnect()
+#预言家验人
+for user in Group:
+	if user.role == "prophet":
+		out_msg = "Choose a player to exam:"
+		out_msg = my_msg#player_number + " is " + my_msg.role
+
+#
+	
+	
+
 
