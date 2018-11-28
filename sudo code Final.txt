@@ -28,9 +28,10 @@ Class Character(self, roll, status["Dead" or "Alive"]):
 server characters = {4:['citizen1','citizen2','wolf1','wolf2','witch'],5:[],6:[],7:[],8:[],9:[],10:[]}
 number = len(chat_group)
 game_roles = characters[number]
+assign_roles = {}
 for i in range(number):
 	game_roles.random.shuffle()
-	chat_group[I] = game_roles[I]
+	assign_roles[chat_group[I]] = game_roles[I]
 
 villager, wolf, prophet, witch, hunter
 4:[villager*2, wolf, prophet]
@@ -40,4 +41,20 @@ villager, wolf, prophet, witch, hunter
 8:[villager*3, wolf*2, prophet, witch, hunter]
 9:[villager*4, wolf*2, prophet, witch, hunter]
 10:[villager*5, wolf*3, prophet, witch, hunter]
+
+# 女巫：
+For user in Group:
+	if user.role == "witch":
+		self.out_msg += "Do you want to kill or save anyone? (Input kill or save or no)"
+	if "kill":
+		self.out_msg += "who do u wanna kill?"
+		if self.msg == playerNumber:
+			set_state: playerNumber.state = "dead"
+	elif "save":
+		self.out_msg += "who do u wanna save?"
+		if self.msg == playerNumber:
+			set_state: playerNumber.state = "alive"	
+	else:
+		continue
+	
 
