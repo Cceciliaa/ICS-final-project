@@ -15,7 +15,7 @@ Elif 房间人数小于4或大于10:
 #分配角色Class：
 Characters = ["Wolf",""]
 
-Class Character(self, playerNumber, role, status["Dead" or "Alive"]):
+Class Character(self, playerNumber, role, status["Dead" or "Alive"],round:''):
 	def __init__(self):
 		self.playerNumber = playerNumber
 		self.role = role
@@ -48,8 +48,31 @@ villager, wolf, prophet, witch, hunter
 8:[villager*3, wolf*2, prophet, witch, hunter]
 9:[villager*4, wolf*2, prophet, witch, hunter]
 10:[villager*5, wolf*3, prophet, witch, hunter]
+	
 
-# 女巫：
+
+#开始游戏
+#角色行动 - 顺序：狼人 => 预言家 => 女巫 => 判定：（猎人）
+"Night is coming, please close your eyes"
+All characters: round: "action"
+#狼人杀人：创建狼人小群：输出kill player
+for user in Group:
+	if user.role == "wolf":
+		user.join(ChatGroupWolf)
+	if my_msg == "kill" + playerNumber：
+		playerNumber.set_status("Dead")
+		if playerNumber == '猎人':
+			mysend({status:"dead",msg:"You now can choose to kill another player:"})
+
+		for user in ChatGroupWolf:
+			user.disconnect()
+#预言家验人
+for user in Group:
+	if user.role == "prophet":
+		out_msg = "Choose a player to exam:"
+		out_msg += peer.player_number + " is " + peer.role
+
+#女巫：
 For user in Group:
 	if user.role == "witch":
 		self.out_msg += "Do you want to kill or save anyone? (Input kill or save or no)"
@@ -63,29 +86,27 @@ For user in Group:
 			set_state: playerNumber.state = "alive"	
 	else:
 		continue
-	
 
+"The sun has arisen, now enter the discussion."
+All player: round: "discussion"
+#猎人
+If self.status == "dead" and len(peer.msg) > 0:
+	self.out_msg += peer.msg
 
-#开始游戏
-#角色行动 - 顺序：狼人 => 预言家 => 女巫 => 判定：（猎人）
-"Night is coming, please close your eyes"
-#狼人杀人：创建狼人小群：输出kill player
-for user in Group:
-	if user.role == "wolf":
-		user.join(ChatGroupWolf)
-	if my_msg == "kill" + playerNumber：
-		playerNumber.set_status("Dead")
+For player in group:
+	if status != "dead":
+		self.out_msg += it's now your turn to say something
+    		mysend()
 
-		for user in ChatGroupWolf:
-			user.disconnect()
-#预言家验人
-for user in Group:
-	if user.role == "prophet":
-		out_msg = "Choose a player to exam:"
-		out_msg = my_msg#player_number + " is " + my_msg.role
-
-#
-	
-	
-
-
+"Now please vote"
+All player: round: "vote"
+For player in group:
+	if status != "dead":
+		self.out_msg += it's now your turn to vote
+    		mysend()
+Vote = {}
+If vote == playerNumber:
+	if playerNumber not in vote.keys():
+		vote[playerNumber] = 1
+	else:
+		vote[playerNumber] += 1
