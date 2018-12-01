@@ -42,6 +42,26 @@ class ClientSM:
             self.out_msg += 'User is not online, try again later\n'
         return(False)
 
+    def gaming_with(self,peer):
+        msg = json.dumps({"action":"game", "target":peer})
+        mysend(self.s, msg)
+        response = json.loads(myrecv(self.s))
+        if response["status"] == "success":
+            self.peer = peer
+            self.out_msg += 'You\'ve invited '+ self.peer + ' to your game\n'
+            return (True)
+        elif response["status"] == "busy":
+            self.out_msg += 'User is busy. Please try again later\n'
+        elif response["status"] == "self":
+            self.out_msg += 'Cannot play with yourself\n'
+        else:
+            self.out_msg += 'User is not online, try again later\n'
+        return(False)
+
+    def game_start(self):
+        me = self.get_myname()
+        msg = json.dumps({"action":"start","target":me})
+
     def disconnect(self):
         msg = json.dumps({"action":"disconnect"})
         mysend(self.s, msg)
@@ -107,7 +127,7 @@ class ClientSM:
                 elif my_msg[0] == 'g':
                     peer = my_msg[1:]
                     peer = peer.strip()
-                    if self.connect_to(peer) == True:
+                    if self.gaming_with(peer) == True:
                         self.state = S_CHATTING
                         self.out_msg += 'Add ' + peer + ' to the game!\n\n'
                         self.out_msg += 'Type "start" to start the game'
@@ -116,7 +136,7 @@ class ClientSM:
                         self.out_msg += 'Invatation unsuccessful\n'
 #Eden
                 elif my_msg == 'start':
-                    for player in 
+                    
 #Eden
 
                 else:
