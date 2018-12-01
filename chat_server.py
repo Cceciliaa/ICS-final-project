@@ -14,7 +14,7 @@ import json
 import pickle as pkl
 from chat_utils import *
 import chat_group as grp
-#import players
+import players as p
 
 class Server:
     def __init__(self):
@@ -23,6 +23,7 @@ class Server:
         self.logged_sock2name = {} # dict mapping socket to user name
         self.all_sockets = []
         self.group = grp.Group()
+        self.players = p.Players()
         #start server
         self.server=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server.bind(SERVER)
@@ -197,23 +198,30 @@ class Server:
 #==============================================================================
 #                 the "from" guy really, really has had enough
 #==============================================================================
-            #elif msg["action"] == "start":
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+            elif msg["action"] == "start":
+                '''set gaming group'''
+                from_name = self.logged_sock2name[from_sock]
+                the_guys = self.group.list_me(from_name)
+                the_players = self.players.get_gaming_group(the_guys)
+                for i in the_players[1:]:
+                    to_name = i.playerName
+                    to_sock = self.logged_name2sock[to_name]
+                    mysend(to_sock, json.dumps({"action":"start","role":i.get_role(),"status":i.get_status()}))
+                me = the_players[0]
+                mysend(from_sock, json.dumps({"action":"start","role":me.get_role(),"status":me.get_status()}))
+                    
+                    
+            elif msg["action"] == "gaming":
+                from_name = self.logged_sock2name[from_sock]
+                the_guys = self.group.list_me(from_name)
+                #said = msg["from"]+msg["message"]
+                said2 = text_proc(msg["message"], from_name)
+                self.indices[from_name].add_msg_and_index(said2)
+                for g in the_guys[1:]:
+                    to_sock = self.logged_name2sock[g]
+                    self.indices[g].add_msg_and_index(said2)
+                    mysend(to_sock, json.dumps({"action":"gaming", "from":msg["from"], "message":msg["message"]}))
+                
 
 
 

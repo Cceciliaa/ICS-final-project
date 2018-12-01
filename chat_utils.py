@@ -22,8 +22,9 @@ S_CONNECTED = 1
 S_LOGGEDIN  = 2
 S_CHATTING  = 3
 S_GAMING    = 4
+S_START     = 5
 
-SIZE_SPEC = 5
+SIZE_SPEC = 7
 
 CHAT_WAIT = 0.2
 
@@ -37,6 +38,8 @@ def print_state(state):
         print('Logged in')
     elif state == S_CHATTING:
         print('Chatting')
+    elif state == S_START:
+        print('Initializing')
     elif state == S_GAMING:
         print('Gaming')
     else:

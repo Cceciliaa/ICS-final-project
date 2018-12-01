@@ -4,9 +4,6 @@ class Character:
         self.playerName = playerName
         self.status = 'alive'
         self.role = ''
-
-    def set_name(self,name):
-        self.playerName = name
         
     def set_status(self,new_status):
         self.status = new_status
@@ -14,6 +11,14 @@ class Character:
     def set_role(self,new_role):
         self.role = new_role
         return self.role
+    
+    def kill(self):
+        self.status = 'dead'
+        return self.status
+    
+    def save(self):
+        self.status = 'alive'
+        return self.status
     
     def get_status(self):
         return self.status

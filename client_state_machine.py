@@ -60,7 +60,7 @@ class ClientSM:
 
     def game_start(self):
         me = self.get_myname()
-        msg = json.dumps({"action":"start","target":me})
+        mysend(self.s, json.dumps({"action":"start"}))
 
     def disconnect(self):
         msg = json.dumps({"action":"disconnect"})
@@ -128,19 +128,12 @@ class ClientSM:
                     peer = my_msg[1:]
                     peer = peer.strip()
                     if self.gaming_with(peer) == True:
-                        self.state = S_CHATTING
+                        self.state = S_START
                         self.out_msg += 'Add ' + peer + ' to the game!\n\n'
                         self.out_msg += 'Type "start" to start the game\n'
                         self.out_msg += '-----------------------------------\n'
                     else:
                         self.out_msg += 'Invatation unsuccessful\n'
-#Eden
-                elif my_msg == 'start':
-                    self.game_start()
-                    self.state = S_GAMING
-                    self.out_msg += "Game Start!\n"
-                    self.out_msg += "----------------------------------------\n"
-#Eden
 
 
                 else:
@@ -161,8 +154,11 @@ class ClientSM:
                     self.peer = peer_msg["from"]
                     self.out_msg += 'You\'ve been invited to ' + self.peer + '\'s game\n'
                     self.out_msg += '------------------------------------\n'
-                    self.state = S_CHATTING
-
+                    self.state = S_START
+                elif peer_msg["action"] == "start":
+                    self.out_msg += "Game started!"
+                    self.out_msg += "Your role is: " + peer_msg["role"] + ", and you are now " + peer_msg["status"] + '\n'
+                    self.state = S_GAMING
 #==============================================================================
 # Start chatting, 'bye' for quit
 # This is event handling instate "S_CHATTING"
@@ -182,13 +178,34 @@ class ClientSM:
                     self.state = S_LOGGEDIN
                 elif peer_msg["action"] == "exchange":
                     self.out_msg += peer_msg["from"] + peer_msg["message"]
-                elif peer_msg["action"] == "start":
-                    self.out_msg += peer_msg["from"] + peer_msg["message"]
+                    
+        elif self.state == S_START:
+            if len(my_msg) > 0: 
+                if my_msg == 'start':
+                    self.game_start()
+                    self.out_msg += "Game Start!\n"
+                    self.out_msg += "----------------------------------------\n" 
+                    send_back = json.loads(myrecv(self.s))
+                    self.out_msg += "Your role is: " + send_back["role"] + ", and you are now " \
+                    + send_back["status"] + '\n'
+                    self.state = S_GAMING
+                else:
+                    self.out_msg += 'Type "start" to start the game\n'
+                    self.out_msg += '-----------------------------------\n'
+            
+            if len(peer_msg) > 0:
+                peer_msg = json.loads(peer_msg)
+                if peer_msg["action"] == "start":
+                    self.out_msg += "Game started!"
+                    self.out_msg += "Your role is: " + peer_msg["role"] + ", and you are now " + peer_msg["status"] + '\n'
+                    self.state = S_GAMING
                 elif peer_msg["action"] == "game":
-                    self.out_msg += peer_msg["from"] + " join the game lodge.\n"   
+                    self.out_msg += peer_msg["from"] + " join the game lodge.\n"  
+                    
+           
         elif self.state == S_GAMING:
             if len(my_msg) > 0:     # my stuff going out
-                mysend(self.s, json.dumps({"action":"gaming", "from":"[" + self.me + "]", "message":my_msg}))
+                 mysend(self.s, json.dumps({"action":"gaming", "from":"[" + self.me + "]", "message":my_msg}))
                 
             if len(peer_msg) > 0:    # peer's stuff, coming in
                 peer_msg = json.loads(peer_msg)
