@@ -6,6 +6,8 @@ class Players(Character):
     
     def __init__(self):
         self.gaming_group = []
+        self.status = 'gaming'
+        self.win_side = ''
 
     def role_assign(self, chat_group):
         roles = {4:["villager","villager", "wolf", "prophet"],\
@@ -36,6 +38,30 @@ class Players(Character):
         for player in gaming_grp:
             if player.get_status() == 'alive':
                 alive[player.playerName] = player.get_role()
+        if len(alive) > 3:
+            if 'wolf' not in alive.values():
+                self.win_side = 'villigers'
+                self.status = 'gameover'
+            elif 'villager' not in alive.values():
+                self.win_side = 'wolves'
+                self.status = 'gameover'
+            return self.win_side, self.status
+        else:
+            wolf_number = 0
+            for role in alive.values():
+                if role == 'wolf':
+                    wolf_number += 1
+            
+            if wolf_number >= (len(alive) - wolf_number):
+                self.win_side = 'wolves'
+                self.status = 'gameover'
+                return self.win_side, self.status
+        
+    def 
+            
+            
+            
+            
 
 
 
