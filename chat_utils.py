@@ -21,6 +21,7 @@ S_OFFLINE   = 0
 S_CONNECTED = 1
 S_LOGGEDIN  = 2
 S_CHATTING  = 3
+S_GAMING    = 4
 
 SIZE_SPEC = 5
 
@@ -36,6 +37,8 @@ def print_state(state):
         print('Logged in')
     elif state == S_CHATTING:
         print('Chatting')
+    elif state == S_GAMING:
+        print('Gaming')
     else:
         print('Error: wrong state')
 

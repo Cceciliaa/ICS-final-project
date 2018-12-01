@@ -61,6 +61,7 @@ while True:
 	status = {}
 	for I in users:
 		status[i.role()] = i.status()
+		
 	
 
 #角色行动 - 顺序：狼人 => 预言家 => 女巫 => 判定：（猎人）
