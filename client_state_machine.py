@@ -109,11 +109,15 @@ class ClientSM:
                     peer = peer.strip()
                     if self.connect_to(peer) == True:
                         self.state = S_CHATTING
-                        self.out_msg += 'Add ' + peer + 'to the game!\n\n'
+                        self.out_msg += 'Add ' + peer + ' to the game!\n\n'
+                        self.out_msg += 'Type "start" to start the game'
                         self.out_msg += '-----------------------------------\n'
                     else:
                         self.out_msg += 'Invatation unsuccessful\n'
-
+#Eden
+                elif my_msg == 'start':
+                    for player in 
+#Eden
 
                 else:
                     self.out_msg += menu
@@ -126,7 +130,7 @@ class ClientSM:
                     self.peer = peer_msg["from"]
                     self.out_msg += 'Request from ' + self.peer + '\n'
                     self.out_msg += 'You are connected with ' + self.peer
-                    self.out_msg += '. Chat away!\n\n'
+                    self.out_msg += '. Chat away! (type "start" to start a werewolf game)\n\n'
                     self.out_msg += '------------------------------------\n'
                     self.state = S_CHATTING
 
@@ -147,8 +151,6 @@ class ClientSM:
                     self.out_msg += "(" + peer_msg["from"] + " joined)\n"
                 elif peer_msg["action"] == "disconnect":
                     self.state = S_LOGGEDIN
-                elif peer_msg["action"] == "game":
-                    self.out_msg += "(" + peer_msg["from"] + " invite you to the game)\n"
                 else:
                     self.out_msg += peer_msg["from"] + peer_msg["message"]
 
