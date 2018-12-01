@@ -7,7 +7,6 @@ class Players(Character):
     def __init__(self):
         self.gaming_group = []
         self.status = 'gaming'
-        self.win_side = ''
 
     def role_assign(self, chat_group):
         roles = {4:["villager","villager", "wolf", "prophet"],\
@@ -32,7 +31,9 @@ class Players(Character):
     def get_gaming_group(self):
         return self.gaming_group
     
-    def judge_status(self):
+    
+    
+    def judge_resule(self):
         gaming_grp = self.get_gaming_group()
         alive = {}
         for player in gaming_grp:
@@ -45,7 +46,7 @@ class Players(Character):
             elif 'villager' not in alive.values():
                 self.win_side = 'wolves'
                 self.status = 'gameover'
-            return self.win_side, self.status
+            return self.status,self.win_side
         else:
             wolf_number = 0
             for role in alive.values():
@@ -55,10 +56,12 @@ class Players(Character):
             if wolf_number >= (len(alive) - wolf_number):
                 self.win_side = 'wolves'
                 self.status = 'gameover'
-                return self.win_side, self.status
+                
+                return self.status, self.win_side
         
-    def 
-            
+        return self.status
+        
+  
             
             
             

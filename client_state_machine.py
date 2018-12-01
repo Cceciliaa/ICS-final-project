@@ -139,6 +139,7 @@ class ClientSM:
                     
 #Eden
 
+
                 else:
                     self.out_msg += menu
 
@@ -150,7 +151,7 @@ class ClientSM:
                     self.peer = peer_msg["from"]
                     self.out_msg += 'Request from ' + self.peer + '\n'
                     self.out_msg += 'You are connected with ' + self.peer
-                    self.out_msg += '. Chat away! (type "start" to start a werewolf game)\n\n'
+                    self.out_msg += '. Chat away!\n\n'
                     self.out_msg += '------------------------------------\n'
                     self.state = S_CHATTING
 
@@ -171,8 +172,23 @@ class ClientSM:
                     self.out_msg += "(" + peer_msg["from"] + " joined)\n"
                 elif peer_msg["action"] == "disconnect":
                     self.state = S_LOGGEDIN
-                else:
+                elif peer_msg["action"] == "exchange":
                     self.out_msg += peer_msg["from"] + peer_msg["message"]
+                    
+        elif self.state == S_GAMING:
+            if len(my_msg) > 0:     # my stuff going out
+                mysend(self.s, json.dumps({"action":"gaming", "from":"[" + self.me + "]", "message":my_msg}))
+                
+            if len(peer_msg) > 0:    # peer's stuff, coming in
+                peer_msg = json.loads(peer_msg)
+                if peer_msg["action"] == "connect":
+                    self.out_msg += "(" + peer_msg["from"] + " joined)\n"
+                elif peer_msg["action"] == "disconnect":
+                    self.state = S_LOGGEDIN
+                elif peer_msg["action"] == "gaming":
+                    self.out_msg += peer_msg["from"] + peer_msg["message"]
+                
+                
 
 
             # Display the menu again
