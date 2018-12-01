@@ -130,7 +130,7 @@ class ClientSM:
                     if self.gaming_with(peer) == True:
                         self.state = S_CHATTING
                         self.out_msg += 'Add ' + peer + ' to the game!\n\n'
-                        self.out_msg += 'Type "start" to start the game'
+                        self.out_msg += 'Type "start" to start the game\n'
                         self.out_msg += '-----------------------------------\n'
                     else:
                         self.out_msg += 'Invatation unsuccessful\n'
@@ -138,7 +138,7 @@ class ClientSM:
                 elif my_msg == 'start':
                     self.game_start()
                     self.state = S_GAMING
-                    self.out_msg += "Game Start!"
+                    self.out_msg += "Game Start!\n"
                     self.out_msg += "----------------------------------------\n"
 #Eden
 
@@ -155,6 +155,11 @@ class ClientSM:
                     self.out_msg += 'Request from ' + self.peer + '\n'
                     self.out_msg += 'You are connected with ' + self.peer
                     self.out_msg += '. Chat away!\n\n'
+                    self.out_msg += '------------------------------------\n'
+                    self.state = S_CHATTING
+                elif peer_msg["action"] == "game":
+                    self.peer = peer_msg["from"]
+                    self.out_msg += 'You\'ve been invited to ' + self.peer + '\'s game\n'
                     self.out_msg += '------------------------------------\n'
                     self.state = S_CHATTING
 
@@ -177,7 +182,10 @@ class ClientSM:
                     self.state = S_LOGGEDIN
                 elif peer_msg["action"] == "exchange":
                     self.out_msg += peer_msg["from"] + peer_msg["message"]
-                    
+                elif peer_msg["action"] == "start":
+                    self.out_msg += peer_msg["from"] + peer_msg["message"]
+                elif peer_msg["action"] == "game":
+                    self.out_msg += peer_msg["from"] + " join the game lodge.\n"   
         elif self.state == S_GAMING:
             if len(my_msg) > 0:     # my stuff going out
                 mysend(self.s, json.dumps({"action":"gaming", "from":"[" + self.me + "]", "message":my_msg}))
