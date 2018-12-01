@@ -86,6 +86,5 @@ if __name__ == "__main__":
     sonnets = PIndex("AllSonnets.txt")
     p3 = sonnets.get_poem(3)
     print(p3)
-    print('\n')
     s_love = sonnets.search("love")
     print(s_love)

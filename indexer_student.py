@@ -1,5 +1,5 @@
 import pickle
-
+# suppose I finished the up1
 
 class Index:
     def __init__(self, name):
@@ -44,11 +44,10 @@ class Index:
         """
         # IMPLEMENTATION
         # ---- start your code ---- #
-        self.msgs.append(m)
-        self.total_msgs += 1
+        pass
 
         # ---- end of your code --- #
-        return self.msgs, self.total_msgs
+        return
 
     def add_msg_and_index(self, m):
         self.add_msg(m)
@@ -63,15 +62,10 @@ class Index:
 
         # IMPLEMENTATION
         # ---- start your code ---- #
-        wrd_lst = m.split(" ")
-        self.total_words += len(wrd_lst)
-        for i in wrd_lst:
-            if i in self.index.keys():
-                self.index[i].append(l)
-            else:
-                self.index[i] = [l]
+        pass
+
         # ---- end of your code --- #
-        return self.total_words, self.index
+        return
 
     # implement: query interface
 
@@ -89,15 +83,7 @@ class Index:
         msgs = []
         # IMPLEMENTATION
         # ---- start your code ---- #
-        idx = self.index[term]
-        for i in idx:
-            msgs.append((i,self.msgs[i]))
-        '''
-        #answer:
-        if term in self.index:
-            indices = self.index[term]
-            msgs = [ (i,self.msgs[i]) for i in indices]
-        '''
+        pass
 
         # ---- end of your code --- #
         return msgs
@@ -118,13 +104,10 @@ class PIndex(Index):
         """
         # IMPLEMENTATION
         # ---- start your code ---- #
-        poem = open('AllSonnets.txt','r').read()
-        poem_lines = poem.split('\n')
-        for i in poem_lines:
-            self.add_msg_and_index(i)
+        pass
 
         # ---- end of your code --- #
-        return self.index
+        return
 
     def get_poem(self, p):
         """
@@ -152,15 +135,8 @@ class PIndex(Index):
         poem = []
         # IMPLEMENTATION
         # ---- start your code ---- #
-        rmnum = self.int2roman[p]
-        nxt_rmnum = self.int2roman[p+1]
-        note = rmnum + "."
-        nxt_note = nxt_rmnum + "."
-        bgn = self.msgs.index(note)
-        end = self.msgs.index(nxt_note)
-        for i in range(bgn,end):
-            poem.append(self.msgs[i])
-        
+        pass
+
         # ---- end of your code --- #
         return poem
 

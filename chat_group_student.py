@@ -31,10 +31,9 @@ class Group:
 
         # IMPLEMENTATION
         # ---- start your code ---- #
-        if name in self.members.keys():
-            return True
-        else:
-            return False
+        pass
+
+        return False
         # ---- end of your code --- #
 
     # implement
@@ -44,15 +43,10 @@ class Group:
         """
         # IMPLEMENTATION
         # ---- start your code ---- #
-        if self.is_member(name):
-            self.members.pop(name)
-            for i in range(self.grp_ever):
-                if name in self.chat_grps[i]:
-                    self.chat_grps[i].remove(name)
-                    break
+        pass
 
         # ---- end of your code --- #
-        return self.members, self.chat_grps
+        return
 
     def find_group(self, name):
         """
@@ -60,18 +54,13 @@ class Group:
         variables: whether "name" is in a group, and if true
         the key to its group
         """
+
         found = False
         group_key = 0
         # IMPLEMENTATION
         # ---- start your code ---- #
-        if self.grp_ever == 0:
-            return found, group_key
-        while group_key <= self.grp_ever:
-            if name in self.chat_grps[group_key]:
-                found = True
-                break
-            else:
-                group_key += 1
+        pass
+
         # ---- end of your code --- #
         return found, group_key
 
@@ -85,17 +74,10 @@ class Group:
 
         # IMPLEMENTATION
         # ---- start your code ---- #
-        if peer_in_group:
-            self.chat_grps[group_key].append(me)
-        else:
-            self.chat_grps[self.grp_ever] = [me, peer]
-            self.grp_ever += 1
-            self.members[peer] = S_TALKING
-            
-        self.members[me] = S_TALKING
+        pass
 
         # ---- end of your code --- #
-        return self.chat_grps
+        return
 
     # implement
     def disconnect(self, me):
@@ -104,19 +86,10 @@ class Group:
         """
         # IMPLEMENTATION
         # ---- start your code ---- #
-        if self.members[me] == S_TALKING:
-            gp_key = self.find_group(me)[1]
-            if len(self.chat_grps[gp_key]) == 2:
-                for i in self.chat_grps[gp_key]:
-                    self.members[i] = S_ALONE
-                    self.chat_grps.pop(gp_key, None)
-                self.grp_ever -= 1
-            else:
-                self.members[me] = S_ALONE
-                self.chat_grps[gp_key].pop(me)
+        pass
 
         # ---- end of your code --- #
-        return self.chat_grps
+        return
 
     def list_all(self):
         # a simple minded implementation
@@ -134,12 +107,7 @@ class Group:
         my_list = []
         # IMPLEMENTATION
         # ---- start your code ---- #
-        if self.members[me] == S_TALKING:
-            my_list.append(me)
-            gp_key = self.find_group(me)[1]
-            for i in self.chat_grps[gp_key]:
-                if i != me:
-                    my_list.append(i)
+        pass
 
         # ---- end of your code --- #
         return my_list
