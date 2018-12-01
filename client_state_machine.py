@@ -136,7 +136,10 @@ class ClientSM:
                         self.out_msg += 'Invatation unsuccessful\n'
 #Eden
                 elif my_msg == 'start':
-                    
+                    self.game_start()
+                    self.state = S_GAMING
+                    self.out_msg += "Game Start!"
+                    self.out_msg += "----------------------------------------\n"
 #Eden
 
                 else:
