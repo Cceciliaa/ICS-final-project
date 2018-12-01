@@ -183,7 +183,7 @@ class ClientSM:
             if len(my_msg) > 0: 
                 if my_msg == 'start':
                     self.game_start()
-                    self.out_msg += "Game Start!\n"
+                    self.out_msg += "Game started!\n"
                     self.out_msg += "----------------------------------------\n" 
                     send_back = json.loads(myrecv(self.s))
                     self.out_msg += "Your role is: " + send_back["role"] + ", and you are now " \
@@ -196,7 +196,7 @@ class ClientSM:
             if len(peer_msg) > 0:
                 peer_msg = json.loads(peer_msg)
                 if peer_msg["action"] == "start":
-                    self.out_msg += "Game started!"
+                    self.out_msg += "Game started! \n"
                     self.out_msg += "Your role is: " + peer_msg["role"] + ", and you are now " + peer_msg["status"] + '\n'
                     self.state = S_GAMING
                 elif peer_msg["action"] == "game":
