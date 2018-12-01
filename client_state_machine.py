@@ -103,29 +103,8 @@ class ClientSM:
                     else:
                         self.out_msg += 'Sonnet ' + poem_idx + ' not found\n\n'
 
-
-
-                #===========================================================================
-                #===========================================================================
-                #===========================================================================
-                elif my_msg[0] == 'g':
-                    peer = my_msg[1:]
-                    peer = peer.strip()
-                    mysend(self.s, json.dumps({"action":"game"}))
-                    if self.connect_to(peer) == True:
-                        self.state = S_CHATTING
-                        self.out_msg += 'Connect to ' + peer + '\'s werewolf game\n\n'
-                        self.out_msg += '-----------------------------------\n'
-                    else:
-                        self.out_msg += 'Inviting unsuccessful\n'
                 else:
                     self.out_msg += menu
-                #===========================================================================
-                #===========================================================================
-                #===========================================================================
-
-
-
 
             if len(peer_msg) > 0:
                 peer_msg = json.loads(peer_msg)
@@ -136,23 +115,7 @@ class ClientSM:
                     self.out_msg += '. Chat away!\n\n'
                     self.out_msg += '------------------------------------\n'
                     self.state = S_CHATTING
-#===========================================================================
-#===========================================================================
-#===========================================================================
 
-
-                if peer_msg["action"] == "game":
-                    self.peer = peer.msg["from"]
-                    self.out_msg += 'Request from ' + self.peer + 'for a game\n'
-                    self.out_msg += 'You are connected with ' + self.peer
-                    self.out_msg += 'Type "start" to start the game\n\n'
-                    self.out_msg += '------------------------------------\n'
-                    self.state = S_CHATTING
-
-
-
-#===========================================================================
-#===========================================================================
 #==============================================================================
 # Start chatting, 'bye' for quit
 # This is event handling instate "S_CHATTING"
