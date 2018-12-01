@@ -2,7 +2,7 @@ class Character:
     
     def __init__(self, playerName):
         self.playerName = playerName
-        self.status = "alive"
+        self.status = 'alive'
         self.role = ''
 
     def set_name(self,name):
