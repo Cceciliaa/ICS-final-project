@@ -14,6 +14,7 @@ import json
 import pickle as pkl
 from chat_utils import *
 import chat_group as grp
+import players
 
 class Server:
     def __init__(self):
@@ -113,6 +114,24 @@ class Server:
                 else:
                     msg = json.dumps({"action":"connect", "status":"no-user"})
                 mysend(from_sock, msg)
+                
+            if msg["action"] == "game":
+                to_name = msg["target"]
+                from_name = self.logged_sock2name[from_sock]
+                if to_name == from_name:
+                    msg = json.dumps({"action":"game", "status":"self"})
+                # connect to the peer
+                elif self.group.is_member(to_name):
+                    to_sock = self.logged_name2sock[to_name]
+                    self.group.connect(from_name, to_name)
+                    the_guys = self.group.list_me(from_name)
+                    msg = json.dumps({"action":"game", "status":"success"})
+                    for g in the_guys[1:]:
+                        to_sock = self.logged_name2sock[g]
+                        mysend(to_sock, json.dumps({"action":"game", "status":"request", "from":from_name}))
+                else:
+                    msg = json.dumps({"action":"game", "status":"no-user"})
+                mysend(from_sock, msg)
 #==============================================================================
 # handle messeage exchange: one peer for now. will need multicast later
 #==============================================================================
@@ -126,6 +145,7 @@ class Server:
                     to_sock = self.logged_name2sock[g]
                     self.indices[g].add_msg_and_index(said2)
                     mysend(to_sock, json.dumps({"action":"exchange", "from":msg["from"], "message":msg["message"]}))
+                    
 #==============================================================================
 #                 listing available peers
 #==============================================================================
