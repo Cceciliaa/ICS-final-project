@@ -103,8 +103,22 @@ class ClientSM:
                     else:
                         self.out_msg += 'Sonnet ' + poem_idx + ' not found\n\n'
 
+
+                elif my_msg[0] == 'g':
+                    peer = my_msg[1:]
+                    peer = peer.strip()
+                    if self.connect_to(peer) == True:
+                        self.state = S_CHATTING
+                        self.out_msg += 'Add ' + peer + 'to the game!\n\n'
+                        self.out_msg += '-----------------------------------\n'
+                    else:
+                        self.out_msg += 'Invatation unsuccessful\n'
+
+
                 else:
                     self.out_msg += menu
+
+                    
 
             if len(peer_msg) > 0:
                 peer_msg = json.loads(peer_msg)
@@ -133,6 +147,8 @@ class ClientSM:
                     self.out_msg += "(" + peer_msg["from"] + " joined)\n"
                 elif peer_msg["action"] == "disconnect":
                     self.state = S_LOGGEDIN
+                elif peer_msg["action"] == "game":
+                    self.out_msg += "(" + peer_msg["from"] + " invite you to the game)\n"
                 else:
                     self.out_msg += peer_msg["from"] + peer_msg["message"]
 
