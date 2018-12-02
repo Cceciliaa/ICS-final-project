@@ -124,9 +124,11 @@ If vote == playerNumber:
 	else:
 		vote[playerNumber] += 1
 
+self.status alive/dead， 控制能否说话
+self.gaming_state action/asleep, 控制round
 关于message action：
-gaming
-Viewing
+gaming 只要self.status == 'alive', 就是在gaming状态
+Viewing dead
 
-Round:
+Round: 控制消息的种类，同时控制player的gaming_state （kill&save控制player的status）
 Action, asleep, kill, save

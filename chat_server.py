@@ -36,8 +36,8 @@ class Server:
         # self.sonnet = pkl.load(self.sonnet_f)
         # self.sonnet_f.close()
         self.sonnet = indexer.PIndex("AllSonnets.txt")
-        self.alive_players = {}
-        self.wolves = grp.Group()
+        self.alive_players = {} #record the living players 
+        self.wolves = grp.Group() #add the wolves to a seperate chat group
     def new_client(self, sock):
         #add to all sockets and to new clients
         print('new client...')
