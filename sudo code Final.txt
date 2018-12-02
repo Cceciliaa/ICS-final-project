@@ -123,3 +123,10 @@ If vote == playerNumber:
 		vote[playerNumber] = 1
 	else:
 		vote[playerNumber] += 1
+
+关于message action：
+gaming
+Viewing
+
+Round:
+Action, asleep, kill, save

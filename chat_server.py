@@ -36,6 +36,8 @@ class Server:
         # self.sonnet = pkl.load(self.sonnet_f)
         # self.sonnet_f.close()
         self.sonnet = indexer.PIndex("AllSonnets.txt")
+        self.alive_players = {}
+        self.wolves = grp.Group()
     def new_client(self, sock):
         #add to all sockets and to new clients
         print('new client...')
@@ -198,6 +200,13 @@ class Server:
 #==============================================================================
 #                 the "from" guy really, really has had enough
 #==============================================================================
+            elif msg["action"] == "listAlive":
+                from_name = self.logged_sock2name[from_sock]
+                msg = ''
+                for player in self.alive_players.keys():
+                    msg += str(player) + ", "
+                mysend(from_sock, json.dumps({"action":"list", "results":msg}))
+            
             elif msg["action"] == "start":
                 '''set gaming group'''
                 from_name = self.logged_sock2name[from_sock]
@@ -206,21 +215,51 @@ class Server:
                 for i in the_players[1:]:
                     to_name = i.playerName
                     to_sock = self.logged_name2sock[to_name]
+                    self.alive_players[i.playerName] = i.get_role()
                     mysend(to_sock, json.dumps({"action":"start","role":i.get_role(),"status":i.get_status()}))
                 me = the_players[0]
+                self.alive_players[me.playerName] = me.get_role()
                 mysend(from_sock, json.dumps({"action":"start","role":me.get_role(),"status":me.get_status()}))
-                    
+                for player in self.alive_players.keys():
+                    if self.alive_players[player] == "wolf":
+                        self.wolves.join(player)
                     
             elif msg["action"] == "gaming":
                 from_name = self.logged_sock2name[from_sock]
-                the_guys = self.group.list_me(from_name)
-                #said = msg["from"]+msg["message"]
-                said2 = text_proc(msg["message"], from_name)
-                self.indices[from_name].add_msg_and_index(said2)
-                for g in the_guys[1:]:
-                    to_sock = self.logged_name2sock[g]
-                    self.indices[g].add_msg_and_index(said2)
-                    mysend(to_sock, json.dumps({"action":"gaming", "from":msg["from"], "message":msg["message"]}))
+                # action
+                if msg["round"] == "action":
+                    if msg["role"] == "wolf":
+                        the_guys = self.wolves.list_me(from_name)
+                        said2 = text_proc(msg["message"], from_name)
+                        for g in the_guys[1:]:
+                            to_sock = self.logged_name2sock[g]
+                            mysend(to_sock, json.dumps({"action":"gaming","round":"action", "role":"wolf", \
+                                                        "from":msg["from"], "message":msg["message"]}))
+                elif msg["round"] == "kill":
+                    if msg["role"] == "wolf":
+                        the_guys = self.wolves.list_me(from_name)
+                        for g in the_guys[1:]:
+                            to_sock = self.logged_name2sock[g]
+                            mysend(to_sock, json.dumps({"action":"gaming","round":"kill", "role":"wolf", \
+                                                        "from":msg["from"], "message":"asleep"}))
+                    kill = msg["message"]
+                    if self.alive_players[kill] == "wolf":
+                        self.wolves.leave(kill)
+                    del self.alive_players[kill]
+                    to_sock = self.logged_name2sock[kill]
+                    mysend(to_sock, json.dumps({"action":"gaming","round":"action", "role":str(self.alive_players[from_name]), \
+                                                    "from":msg["from"], "message":"Unfortunately, you are killed"}))
+                    if "prophet" in self.alive_players.values():
+                        prophet = ''
+                        for player in self.alive_players.keys():
+                            if self.alive_player[player] == "prophet":
+                                prophet = player
+                                break
+                        toProphet = self.logged_name2sock[prophet]
+                        mysend(toProphet, json.dumps({"action":"gaming","round":"action", "role":"prophet", \
+                                                    "from":msg["from"], "message":"You are now awaken. \n"}))
+                
+                
                 
 
 
