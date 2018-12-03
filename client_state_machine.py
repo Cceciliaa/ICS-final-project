@@ -258,7 +258,6 @@ class ClientSM:
                                                     "from":"[" + self.me + "]", "message":kill}))
                          send_back = json.loads(myrecv(self.s))["message"]
                          if send_back == "asleep":
-                             self.out_msg = ''
                              self.set_gaming_state("asleep")
                          else:
                              self.out_msg += send_back
