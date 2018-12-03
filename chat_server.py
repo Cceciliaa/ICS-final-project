@@ -38,6 +38,7 @@ class Server:
         self.sonnet = indexer.PIndex("AllSonnets.txt")
         self.gaming_players = [] #record the gaming players 
         self.wolves = grp.Group() #add the wolves to a seperate chat group
+        self.dead = []
     def new_client(self, sock):
         #add to all sockets and to new clients
         print('new client...')
@@ -207,6 +208,15 @@ class Server:
                     if player.get_status() == "alive":
                         msg += str(player.playerName) + ", "
                 mysend(from_sock, json.dumps({"action":"list", "results":msg}))
+
+            # GET the player just dead
+            elif msg["action"] == "getDead":
+                from_name = self.logged_sock2name[from_sock]
+                msg = self.dead(len(self.dead))
+                mysend(from_sock, json.dumps({"action":"list", "results":msg}))
+                
+                
+                
             
             elif msg["action"] == "start":
                 '''set gaming group'''
@@ -222,6 +232,9 @@ class Server:
                 for player in self.gaming_players:
                     if player.get_role() == "wolf":
                         self.wolves.join(player.playerName)
+                    elif player.get_role() == "witch":
+                        self.set_poison()
+                        self.set_cure()
                     
             elif msg["action"] == "gaming":
                 from_name = self.logged_sock2name[from_sock]
@@ -241,6 +254,7 @@ class Server:
                         if player.playerName == kill and player.get_status() == "alive":
                             if player.get_role() == "wolf":
                                 self.wolves.leave(kill)
+                            self.dead.append(player)
                             player.set_status("dead")
                             role = player.get_role()
                             '''
@@ -270,7 +284,24 @@ class Server:
                             toProphet = self.logged_name2sock[player.playerName]
                             mysend(toProphet, json.dumps({"action":"gaming","round":"action", "role":"prophet", \
                                                         "from":msg["from"], "message":"You are now awaken. \n"}))
-                    
+
+
+
+                elif msg["round"] == "check":
+                    check = msg["message"]
+                    check_role = ''
+                    for player in self.gaming_players:
+                        if player.playerName == check:
+                            check_role = player.get_role()
+                    mysend(to_sock, json.dumps({"action":"gaming","round":"check", "role":"prophet", \
+                                                                "from":msg["from"], "message":check_role}))
+
+                            
+                for player in self.gaming_players:
+                    if player.get_role() == "witch":
+                        toWitch = self.logged_name2sock[player.playerName]
+                        mysend(toWitch, json.dumps({"action":"gaming","round":"action", "role":"witch", \
+                                                        "from":msg["from"], "message":"You are now awaken. \n"}))
         
 
 

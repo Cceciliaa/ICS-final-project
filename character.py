@@ -25,3 +25,22 @@ class Character:
     
     def get_role(self):
         return self.role
+
+
+
+# Functions for the Witch
+    def set_poison(self):
+        self.poison = 1
+    def use_poison(self):
+        self.poison = 0
+    def get_poison(self):
+        return self.poison
+
+    def set_cure(self):
+        self.cure = 1
+    def use_cure(self):
+        self.cure = 0
+    def get_cure(self):
+        return self.cure
+    
+    
