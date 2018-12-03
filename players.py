@@ -7,7 +7,6 @@ class Players():
     
     def __init__(self):
         self.gaming_group = []
-        self.status = 'gaming'
 
     def role_assign(self, chat_group):
         #roles for 2 players is just for test
@@ -39,8 +38,9 @@ class Players():
         alive = []
         for player in self.gaming_grp:
             if player.get_status() == 'alive':
-                alive.append(player)
-        return alive
+                alive.append(player.playerName)
+        alivePlayers = ', '.join(alive)
+        return alivePlayers
     
     def judge_resule(self):
         alive = {}

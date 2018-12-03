@@ -231,10 +231,10 @@ class ClientSM:
                     self.set_role(peer_msg["role"])
                     self.set_gstatus(peer_msg["status"])
                     self.state = S_GAMING
-                    self.out_msg += "Night is coming, please close your eyes...\n "
+                    self.out_msg += "Night is coming, please close your eyes...\n"
                     if self.get_role() == "wolf":
                         self.set_gaming_state("action")
-                        self.out_msg += "Now please chat with your partners (if any) and decide a player to kill. \n"
+                        self.out_msg += "Now please chat with your partners (if any) and decide a player to kill.\n"
                         mysend(self.s, json.dumps({"action":"listAlive"}))
                         logged_in = json.loads(myrecv(self.s))["results"]
                         self.out_msg += "Now gaming: " + logged_in + '\n'
@@ -253,26 +253,25 @@ class ClientSM:
                      if my_msg[:4] == "KILL":
                          kill = my_msg[4:]
                          kill.strip()
+                         self.out_msg += "You have killed " + kill + ", now please go back to sleep.\n"
                          mysend(self.s, json.dumps({"action":"gaming", "round":"kill", "role":self.role, \
                                                     "from":"[" + self.me + "]", "message":kill}))
-                         self.out_msg += "You have killed " + kill + ", now please go back to sleep. \n"
-                         self.out_msg = ''
-                         self.set_gaming_state("asleep")
+                         send_back = json.loads(myrecv(self.s))["message"]
+                         if send_back == "asleep":
+                             self.out_msg = ''
+                             self.set_gaming_state("asleep")
+                         else:
+                             self.out_msg += send_back
                         
                 if len(peer_msg) > 0:    # peer's stuff, coming in
                     peer_msg = json.loads(peer_msg)
                     if peer_msg["round"] == "action":
                         self.out_msg += peer_msg["from"] + peer_msg["message"]
                     elif peer_msg["round"] == "kill":
-                        self.set_gstatus("dead")
+                        self.out_msg += "You have killed " + peer_msg["message"] + ", now please go back to sleep.\n"
                     if peer_msg["message"] == "asleep":
-                        if self.role == "wolf":
-                            self.out_msg += "You have killed " + kill + ", now please go back to sleep. \n"
-                            self.out_msg = ''
-                            self.set_gaming_state("asleep")
-                        else:
-                            #should specify the output message for each character
-                            self.set_gaming_state("asleep")
+                        self.out_msg = ''
+                        self.set_gaming_state("asleep")
                         
             elif self.gaming_state == "asleep":
                 if len(my_msg) > 0:
@@ -283,12 +282,18 @@ class ClientSM:
                         if self.get_role() == peer_msg["role"]:
                             self.set_gaming_state("action")
                             self.out_msg += peer_msg["message"]
-                            if self.getrole() == "prophet":
+                            if self.get_role() == "prophet":
                                 self.out_msg += "Choose a player to see his/her role (type the name of the player): \n"
-                                mysend(self.s, json.dumps({"action":"listAlive"}))
+                                mysend(self.s, json.dumps({"action":"list"}))
                                 logged_in = json.loads(myrecv(self.s))["results"]
                                 self.out_msg += "Now gaming: " + logged_in + '\n'
-
+            
+            elif self.gaming_state == "discussion":
+                
+                if len(peer_msg) > 0:
+                    peer_msg = json.loads(peer_msg)
+                    if peer_msg["round"] == "discussion_k":
+                        self.out_msg += peer_msg["message"]
                             
             else:        
                 if len(peer_msg) > 0:    # peer's stuff, coming in
