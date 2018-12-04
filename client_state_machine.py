@@ -335,10 +335,15 @@ class ClientSM:
                                 self.out_msg += 'Type "CHECK" + player\'s name to check their identity.\n'
                                 self.set_gaming_state("action")
                             if self.get_role() == "witch":
-                                mysend(self.s, json.dumps({"action":"listAlive"}))
+                                mysend(self.s, json.dumps({"action":"listAll"}))
                                 logged_in = json.loads(myrecv(self.s))["results"]
                                 self.out_msg += "Now gaming: " + logged_in + '\n'
                                 self.out_msg += '"POISON" + player\'s name to poison a player ("SKIP" to skip).'
+                    if peer_msg["round"] == "poison":
+                        if self.get_role() == peer_msg["role"]:
+                            self.set_gaming_state("action")
+                            self.out_msg += peer_msg["message"]
+                            if self.get_role() == "witch":
                                 mysend(self.s, json.dumps({"action":"getDead"}))
                                 death = json.loads(myrecv(self.s))["results"]
                                 self.out_msg += death + " is dead tonight." + '\n'

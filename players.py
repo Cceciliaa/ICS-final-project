@@ -11,7 +11,7 @@ class Players():
     def role_assign(self, chat_group):
         #roles for 2 players is just for test
         roles = {3:["villager","wolf","prophet"],\
-                4:["villager","villager", "wolf", "prophet"],\
+                4:["villager","witch", "wolf", "prophet"],\
                  5:['villager', 'villager', 'wolf', 'prophet', 'witch'],\
                  6:['villager','villager', 'wolf', 'prophet', 'witch', 'hunter'],\
                  7:['villager','villager', 'wolf','wolf', 'prophet', 'witch', 'hunter'],\
