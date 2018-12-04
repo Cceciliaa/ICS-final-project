@@ -243,39 +243,20 @@ class ClientSM:
                         self.set_gaming_state("asleep")
 
                     #Prophet's making an action
-                    if self.get_role() == "prophet":
-                        self.set_gaming_status("action")
-                        self.out_msg += "Now please choose one player to check their identity."
-                        mysend(self.s, json.dumps({"action":"listAlive"}))
-                        logged_in = json.loads(myrecv(self.s))["results"]
-                        self.out_msg += "Now gaming: " + logged_in + '\n'
-                        self.out_msg += 'Type "CHECK" + player\'s name to check their identity.\n'
-                    else:
-                        self.set_gaming_state("asleep")
 
-
-                        
-                    #Witch's making an action
-                    if self.get_role() == "witch":
-                        self.set_gaming_status("action")
-                        mysend(self.s, json.dumps({"action":"listAlive"}))
-                        logged_in = json.loads(myrecv(self.s))["results"]
-                        self.out_msg += "Now gaming: " + logged_in + '\n'
-                        self.out_msg += '"POISON" + player\'s name to poison a player ("SKIP" to skip).'
-                        mysend(self.s, json.dumps({"action":"getDead"}))
-                        death = json.loads(myrecv(self.s))["results"]
-                        self.out_msg += death + " is dead tonight." + '\n'
-                        self.out_msg += '"CURE" + player\'s name to poison a player ("SKIP" to skip).'
-                    else:
-                        self.set_gaming_state("asleep")
                         
                         
                 elif peer_msg["action"] == "game":
-                    self.out_msg += peer_msg["from"] + " join the game lodge.\n"  
+                    self.out_msg += peer_msg["from"] + " join the game lodge.\n"
+
+                elif peer_msg["round"] == "check":
+                    self.out_msg += "The prophet's checking identity."
+                
             
            
         elif self.state == S_GAMING:
             if self.gaming_state == "action":
+                
                 if len(my_msg) > 0:     # my stuff going out
                     mysend(self.s, json.dumps({"action":"gaming", "round":"action", "role":self.role, \
                                                 "from":"[" + self.me + "]", "message":my_msg}))
@@ -343,15 +324,23 @@ class ClientSM:
                 if len(peer_msg) > 0:
                     peer_msg = json.loads(peer_msg)
                     if peer_msg["round"] == "action":
-                        if self.get_role() == peer_msg["role"]:
-                            self.set_gaming_state("action")
-                            self.out_msg += peer_msg["message"]
-                            if self.get_role() == "prophet":
-                                self.out_msg += "Choose a player to see his/her role (type the name of the player): \n"
-                                mysend(self.s, json.dumps({"action":"list"}))
-                                logged_in = json.loads(myrecv(self.s))["results"]
-                                self.out_msg += "Now gaming: " + logged_in + '\n'
-            
+                        if self.get_role() == "prophet":
+                            self.out_msg += "Now please choose one player to check their identity."
+                            mysend(self.s, json.dumps({"action":"listAll"}))
+                            logged_in = json.loads(myrecv(self.s))["results"]
+                            self.out_msg += "Now gaming: " + logged_in + '\n'
+                            self.out_msg += 'Type "CHECK" + player\'s name to check their identity.\n'
+                        if self.get_role() == "witch":
+                            mysend(self.s, json.dumps({"action":"listAlive"}))
+                            logged_in = json.loads(myrecv(self.s))["results"]
+                            self.out_msg += "Now gaming: " + logged_in + '\n'
+                            self.out_msg += '"POISON" + player\'s name to poison a player ("SKIP" to skip).'
+                            mysend(self.s, json.dumps({"action":"getDead"}))
+                            death = json.loads(myrecv(self.s))["results"]
+                            self.out_msg += death + " is dead tonight." + '\n'
+                            self.out_msg += '"CURE" + player\'s name to poison a player ("SKIP" to skip).'
+
+                    
             elif self.gaming_state == "discussion":
                 
                 if len(peer_msg) > 0:

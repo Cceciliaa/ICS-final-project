@@ -119,7 +119,7 @@ class Server:
                     msg = json.dumps({"action":"connect", "status":"no-user"})
                 mysend(from_sock, msg)
                 
-            if msg["action"] == "game":
+            elif msg["action"] == "game":
                 to_name = msg["target"]
                 from_name = self.logged_sock2name[from_sock]
                 if to_name == from_name:
@@ -214,6 +214,13 @@ class Server:
                 from_name = self.logged_sock2name[from_sock]
                 msg = self.dead(len(self.dead))
                 mysend(from_sock, json.dumps({"action":"list", "results":msg}))
+
+            elif msg["action"] == "listAll":
+                from_name = self.logged_sock2name[from_sock]
+                msg = ''
+                for player in self.gaming_players:
+                    msg += str(player.playerName) + ", "
+                mysend(from_sock, json.dumps({"action":"list", "results":msg}))
                 
                 
                 
@@ -293,7 +300,8 @@ class Server:
                     for player in self.gaming_players:
                         if player.playerName == check:
                             check_role = player.get_role()
-                    mysend(to_sock, json.dumps({"action":"gaming","round":"check", "role":"prophet", \
+                    toProphet = self.logged_name2sock[player.playerName]
+                    mysend(toProphet, json.dumps({"action":"gaming","round":"check", "role":"prophet", \
                                                                 "from":msg["from"], "message":check_role}))
 
                             
