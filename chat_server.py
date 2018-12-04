@@ -274,17 +274,18 @@ class Server:
                             mysend(to_sock, json.dumps({"action":"gaming","round":"discussion_k", "role":role, \
                                                             "from":msg["from"], "message":"Unfortunately, you are killed"}))
                     
-                            if msg["role"] == "wolf":
-                                the_guys = self.wolves.list_me(from_name)
-                                for g in the_guys:
-                                    to_sock = self.logged_name2sock[g]
-                                    mysend(to_sock, json.dumps({"action":"gaming","round":"kill", "role":"wolf", \
-                                                                "from":msg["from"], "message":"asleep"}))
                         kill_state = True
     
                     if kill_state == False:
                         mysend(from_sock, json.dumps({"action":"gaming","round":"kill", "role":"wolf", \
                                                         "from":msg["from"], "message":"Killing failed."}))
+    
+                    if msg["role"] == "wolf" and kill_state == True:
+                            the_guys = self.wolves.list_me(from_name)
+                            for g in the_guys:
+                                to_sock = self.logged_name2sock[g]
+                                mysend(to_sock, json.dumps({"action":"gaming","round":"kill", "role":"wolf", \
+                                                            "from":msg["from"], "message":"asleep"}))
 
                     for player in self.gaming_players:
                         if player.get_role() == "prophet":
@@ -300,8 +301,7 @@ class Server:
                     for player in self.gaming_players:
                         if player.playerName == check:
                             check_role = player.get_role()
-                    toProphet = self.logged_name2sock[player.playerName]
-                    mysend(toProphet, json.dumps({"action":"gaming","round":"check", "role":"prophet", \
+                    mysend(from_sock, json.dumps({"action":"gaming","round":"check", "role":"prophet", \
                                                                 "from":msg["from"], "message":check_role}))
 
                             

@@ -103,8 +103,8 @@ class Group:
 
     def list_me(self, me):
         # return a list, "me" followed by other peers in my group
+        my_list = []
         if me in self.members.keys():
-            my_list = []
             my_list.append(me)
             in_group, group_key = self.find_group(me)
             if in_group == True:
