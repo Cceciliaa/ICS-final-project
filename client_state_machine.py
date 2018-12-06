@@ -306,8 +306,8 @@ class ClientSM:
                         mysend(self.s, json.dumps({"action":"gaming", "round":"poison", "role":self.role, \
                                                     "from":"[" + self.me + "]", "message":poison}))
                         send_back = json.loads(myrecv(self.s))["message"]
-
-
+                        self.out_msg += send_back
+                        
 
 
 
@@ -321,8 +321,19 @@ class ClientSM:
                                                     "from":"[" + self.me + "]", "message":cure}))
                         
                         send_back = json.loads(myrecv(self.s))["message"]
+                        self.out_msg += send_back
+                        self.set_gaming_state("asleep")
 
-
+                    
+                    elif my_msg[:5] == "SKIPP":
+                        if self.get_role == "witch":
+                            mysend(self.s, json.dumps({"action":"gaming", "round":"poison", "role":self.role, \
+                                                    "from":"[" + self.me + "]", "message":""}))
+                    elif my_msg[:5] == "SKIPC":
+                        if self.get_role == "witch":
+                            mysend(self.s, json.dumps({"action":"gaming", "round":"cure", "role":self.role, \
+                                                    "from":"[" + self.me + "]", "message":""}))
+                            self.set_gaming_state("asleep")
 
 
                         
@@ -356,7 +367,7 @@ class ClientSM:
                                 mysend(self.s, json.dumps({"action":"listAll"}))
                                 logged_in = json.loads(myrecv(self.s))["results"]
                                 self.out_msg += "Now gaming: " + logged_in + '\n'
-                                self.out_msg += '"POISON" + player\'s name to poison a player ("SKIP" to skip).'
+                                self.out_msg += '"POISON" + player\'s name to poison a player ("SKIPP" to skip).'
                     if peer_msg["round"] == "poison":
                         if self.get_role() == peer_msg["role"]:
                             self.set_gaming_state("action")
@@ -365,7 +376,7 @@ class ClientSM:
                                 mysend(self.s, json.dumps({"action":"getDead"}))
                                 death = json.loads(myrecv(self.s))["results"]
                                 self.out_msg += death + " is dead tonight." + '\n'
-                                self.out_msg += '"CURE" + player\'s name to poison a player ("SKIP" to skip).'
+                                self.out_msg += '"CURE" + player\'s name to cure a player ("SKIPC" to skip).'
 
                     
             elif self.gaming_state == "discussion":

@@ -316,29 +316,37 @@ class Server:
 
                 elif msg["round"] == "poison":
                     poison = msg["message"]
+                    if poison != "":
+                        for player in self.gaming_players:
+                            if player.playerName == poison:
+                                player.set_status("dead")
+                                player.use_poison()
+                        to_sock = self.logged_name2sock[poison]
+                        mysend(to_sock, json.dumps({"action":"gaming","round":"discussion_k", "role":role, \
+                                                                "from":msg["from"], "message":"Unfortunately, you are killed"}))
                     for player in self.gaming_players:
-                        if player.playerName == poison:
-                            player.set_status("dead")
-                            player.use_poison()
-                    to_sock = self.logged_name2sock[poison]
-                    mysend(to_sock, json.dumps({"action":"gaming","round":"discussion_k", "role":role, \
-                                                            "from":msg["from"], "message":"Unfortunately, you are killed"}))
-                    for player in self.gaming_players:
-                        if player.get_role() == "witch":
-                                toWitch = self.logged_name2sock[player.playerName]
-                                mysend(toWitch, json.dumps({"action":"gaming","round":"poison", "role":"witch", \
-                                                                "from":msg["from"], "message":"Finish poisoning! Tehehee \n"}))
+                            if player.get_role() == "witch":
+                                    toWitch = self.logged_name2sock[player.playerName]
+                                    mysend(toWitch, json.dumps({"action":"gaming","round":"poison", "role":"witch", \
+                                                                    "from":msg["from"], "message":"Finish poisoning! Tehehee \n"}))
+                    else:
+                        for player in self.gaming_players:
+                            if player.get_role() == "witch":
+                                    toWitch = self.logged_name2sock[player.playerName]
+                                    mysend(toWitch, json.dumps({"action":"gaming","round":"poison", "role":"witch", \
+                                                                    "from":msg["from"], "message":"Skipped poisoning. Duh\n"}))
                         
                 elif msg["round"] == "cure":
                     cure = msg["message"]
-                    for player in self.gaming_players:
-                        if player.playerName == cure:
-                            player.set_status("alive")
-                            player.use_cure()
-                            
-                    to_sock = self.logged_name2sock[cure]
-                    mysend(to_sock, json.dumps({"action":"gaming","round":"discussion_k", "role":role, \
-                                                            "from":msg["from"], "message":""}))
+                    if cure != "":
+                        for player in self.gaming_players:
+                            if player.playerName == cure:
+                                player.set_status("alive")
+                                player.use_cure()
+                                
+                        to_sock = self.logged_name2sock[cure]
+                        mysend(to_sock, json.dumps({"action":"gaming","round":"discussion_k", "role":role, \
+                                                                "from":msg["from"], "message":"Finish curing!"}))
 
                     for player in self.gaming_players:
                         if player.get_role() == "hunter":
@@ -347,6 +355,18 @@ class Server:
                                     to_sock = self.logged_name2sock[g]
                                     mysend(to_sock, json.dumps({"action":"gaming","round":"discussion_k", "role":"wolf", \
                                                             "from":msg["from"], "message":""}))
+                    else:
+                        for player in self.gaming_players:
+                            if player.get_role() == "hunter":
+                                if player.get_state() == "alive":
+                                    for g in the_guys:
+                                        to_sock = self.logged_name2sock[g]
+                                        mysend(to_sock, json.dumps({"action":"gaming","round":"discussion_k", "role":"wolf", \
+                                                                "from":msg["from"], "message":""}))
+                        for g in the_guys:
+                            to_sock = self.logged_name2sock[g]
+                            mysend(to_sock, json.dumps({"action":"gaming","round":"discussion_k", "role":"wolf", \
+                                                                "from":msg["from"], "message":""}))
 
                                 
 
