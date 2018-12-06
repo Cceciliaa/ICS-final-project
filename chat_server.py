@@ -228,8 +228,6 @@ class Server:
                 mysend(from_sock, json.dumps({"action":"list", "results":msg}))
                 
                 
-                
-            
             elif msg["action"] == "start":
                 '''set gaming group'''
                 from_name = self.logged_sock2name[from_sock]
@@ -343,7 +341,7 @@ class Server:
                         mysend(from_sock, json.dumps({"action":"gaming","round":"cure", "role":"witch", \
                                                                 "from":msg["from"], "message":"FAIL"}))
                     for player in self.gaming_players:
-                            message = "The sun has arisen.\n"
+                            message = "The sun has arisen. Now enter discussion.\n"
                             if len(self.newkilled) == 0 and len(self.newpoisoned) == 0:
                                 message += "No one was killed last night.\n"
                             elif len(self.newkilled) == 0:
@@ -353,18 +351,24 @@ class Server:
                             else:
                                 message += "Last night " + self.newkilled + " and" + self.newpoisoned + " were killed.\n"
                             to_sock = self.logged_name2sock[player.playerName]
-                            mysend(to_sock, json.dumps({"action":"gaming","round":"discussion",\
+                            mysend(to_sock, json.dumps({"action":"gaming","round":"discuss",\
                                                             "from":"server", "message": message}))
-
                                 
             elif msg["round"] == "discussion":
-                from_name = self.logged_sock2name[from_sock]
-                the_guys = self.group.list_me
-                message = msg["message"]
-                for g in the_guys[1:]:
-                    to_sock = self.logged_name2sock[g]
-                    mysend(to_sock, json.dumps({"action":"gaming","round":"discussion", \
-                                                            "from":msg["from"], "message":message}))
+                if self.players.judge_result() == "continue":
+                    message = msg["message"]
+                    for player in self.gaming_players:
+                        if player.playerName != from_name:
+                            to_sock = self.logged_name2sock[player.playerName]
+                            mysend(to_sock, json.dumps({"action":"gaming","round":"discussion", \
+                                                                "from":msg["from"], "message":message}))
+                else:
+                    message = "Game over! \n"
+                    message += "The winning side: " + self.g.judge_resule()
+                    for player in self.gaming_players:
+                        to_sock = self.logged_name2sock[player.playerName]
+                        mysend(to_sock, json.dumps({"action":"gaming","round":"end",\
+                                                            "from":"server", "message": message}))
 
                 
             else:

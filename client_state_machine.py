@@ -379,7 +379,7 @@ class ClientSM:
                                 self.out_msg += "Now gaming: " + logged_in + '\n'
                                 self.out_msg += '"POISON" + player\'s name to poison a player ("SKIPP" to skip).'
                                 self.set_gaming_state("action")
-                    elif peer_msg["round"] == "discussion":
+                    elif peer_msg["round"] == "discuss":
                         self.set_gaming_state("discussion")
                         self.out_msg += peer_msg["message"]
 
@@ -389,7 +389,13 @@ class ClientSM:
                                                "from":"[" + self.me + "]", "message":my_msg}))
                 if len(peer_msg) > 0:
                     peer_msg = json.loads(peer_msg)
-                    self.out_msg += peer_msg["from"] + peer_msg["message"]
+                    if peer_msg["round"] == "end":
+                        self.out_msg += peer_msg["message"]
+                        self.set_state("S_LOGGEDIN")
+                        self.disconnect()
+                        self.peer = ''
+                    else:
+                        self.out_msg += peer_msg["from"] + peer_msg["message"]
             
             else:        
                 if len(peer_msg) > 0:    # peer's stuff, coming in
