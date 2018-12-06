@@ -264,19 +264,10 @@ class Server:
                             self.dead.append(player)
                             player.set_status("dead")
                             role = player.get_role()
-                            '''
-                            if self.alive_players[kill] == "wolf":
-                                self.wolves.leave(kill)
-                            del self.alive_players[kill]
-                            '''
-                            # need to think of how to display the killing message to other players
                         to_sock = self.logged_name2sock[player.playerName]
-                        mysend(to_sock, json.dumps({"action":"gaming","round":"discussion_k", "role":role, \
+                        mysend(to_sock, json.dumps({"action":"gaming","round":"discussion_k", "role":'', \
                                                         "from":msg["from"], "message":"Unfortunately, " + kill + \
-                                                        " whose role is " + role + "is killed by the wolves last night.\n"}))
-
-                 
-                    
+                                                       "is killed by the wolves last night.\n"}))
                         kill_state = True
     
                     if kill_state == False:
@@ -326,9 +317,9 @@ class Server:
                                 player.use_poison()
                                 role = player.get_role()
                             to_sock = self.logged_name2sock[player.playerName]
-                            mysend(to_sock, json.dumps({"action":"gaming","round":"discussion_k", "role":role, \
+                            mysend(to_sock, json.dumps({"action":"gaming","round":"discussion_k", "role":'', \
                                                         "from":msg["from"], "message":"Unfortunately, " + poison + \
-                                                        " whose role is " + role + "is poisoned by the witch last night.\n"}))
+                                                        "is poisoned by the witch last night.\n"}))
 
                         mysend(from_sock, json.dumps({"action":"gaming","round":"poison", "role":"witch", \
                                                         "from":msg["from"], "message":"Finish poisoning! Tehehee \n"}))
@@ -345,7 +336,7 @@ class Server:
                                 player.use_cure()
                                 role = player.get_role()
                             to_sock = self.logged_name2sock[player.playerName]
-                            mysend(to_sock, json.dumps({"action":"gaming","round":"discussion_k", "role":role, \
+                            mysend(to_sock, json.dumps({"action":"gaming","round":"discussion_k", "role":'', \
                                                         "from":msg["from"], "message":"Fortunately, " + cure + \
                                                         "is cured by the witch last night.\n"}))
                         mysend(from_sock, json.dumps({"action":"gaming","round":"action", "role":"witch", \

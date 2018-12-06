@@ -382,10 +382,10 @@ class ClientSM:
                                 death = json.loads(myrecv(self.s))["results"]
                                 self.out_msg += death + " is dead tonight." + '\n'
                                 self.out_msg += '"CURE" + player\'s name to cure a player ("SKIPC" to skip).'
-                    elif peer_msg["round"] == "discussion_k":
-                        self.set_gaming_state("discussion_k")
+                    elif peer_msg["round"] == "discussion":
+                        self.set_gaming_state("discussion")
 
-            elif self.gaming_state == "discussion_k":
+            elif self.gaming_state == "discussion":
                 self.out_msg += "The sun has arisen, please wake up and discuss with other players."
                 if len(peer_msg) > 0:
                     peer_msg = json.loads(peer_msg)
