@@ -13,11 +13,11 @@ class Players():
         roles = {2:["villager","wolf"],\
                 4:["villager","witch", "wolf", "prophet"],\
                  5:['villager', 'villager', 'wolf', 'prophet', 'witch'],\
-                 6:['villager','villager', 'wolf', 'prophet', 'witch', 'hunter'],\
-                 7:['villager','villager', 'wolf','wolf', 'prophet', 'witch', 'hunter'],\
-                 8:['villager','villager','villager', 'wolf','wolf', 'prophet', 'witch', 'hunter'],\
-                 9:['villager','villager','villager','villager', 'wolf','wolf','wolf', 'prophet', 'witch', 'hunter'],\
-                 10:['villager','villager','villager','villager', 'wolf','wolf','wolf', 'prophet', 'witch', 'hunter']}
+                 6:['villager','villager', 'wolf', 'prophet', 'witch', 'wolf'],\
+                 7:['villager','villager', 'wolf','wolf', 'prophet', 'witch', 'villager'],\
+                 8:['villager','villager','villager', 'wolf','wolf', 'prophet', 'witch', 'wolf'],\
+                 9:['villager','villager','villager','villager', 'wolf','wolf','wolf', 'prophet', 'witch', 'villager'],\
+                 10:['villager','villager','villager','villager', 'wolf','wolf','wolf', 'prophet', 'witch', 'wolf']}
         number = len(chat_group)
         game_roles = roles[number]
         print("Roles in this round: ", game_roles)
