@@ -270,7 +270,7 @@ class Server:
                             del self.alive_players[kill]
                             '''
                             # need to think of how to display the killing message to other players
-                        to_sock = self.logged_name2sock[player]
+                        to_sock = self.logged_name2sock[player.playerName]
                         mysend(to_sock, json.dumps({"action":"gaming","round":"discussion_k", "role":role, \
                                                         "from":msg["from"], "message":"Unfortunately, " + kill + \
                                                         " whose role is " + role + "is killed by the wolves last night.\n"}))
@@ -303,7 +303,7 @@ class Server:
                     check_role = ''
                     for player in self.gaming_players:
                         if player.playerName == check:
-                            check_role = player.get_role().
+                            check_role = player.get_role()
                     mysend(from_sock, json.dumps({"action":"gaming","round":"check", "role":"prophet", \
                                                                 "from":msg["from"], "message":check_role}))
 
@@ -324,20 +324,17 @@ class Server:
                             if player.playerName == poison:
                                 player.set_status("dead")
                                 player.use_poison()
-                        to_sock = self.logged_name2sock[poison]
-                        mysend(to_sock, json.dumps({"action":"gaming","round":"discussion_k", "role":"", \
-                                                                "from":msg["from"], "message":"Unfortunately, you are killed"}))
-                    for player in self.gaming_players:
-                            if player.get_role() == "witch":
-                                    toWitch = self.logged_name2sock[player.playerName]
-                                    mysend(toWitch, json.dumps({"action":"gaming","round":"poison", "role":"witch", \
-                                                                    "from":msg["from"], "message":"Finish poisoning! Tehehee \n"}))
+                                role = player.get_role()
+                            to_sock = self.logged_name2sock[player.playerName]
+                            mysend(to_sock, json.dumps({"action":"gaming","round":"discussion_k", "role":role, \
+                                                        "from":msg["from"], "message":"Unfortunately, " + poison + \
+                                                        " whose role is " + role + "is poisoned by the witch last night.\n"}))
+
+                        mysend(from_sock, json.dumps({"action":"gaming","round":"poison", "role":"witch", \
+                                                        "from":msg["from"], "message":"Finish poisoning! Tehehee \n"}))
                     else:
-                        for player in self.gaming_players:
-                            if player.get_role() == "witch":
-                                    toWitch = self.logged_name2sock[player.playerName]
-                                    mysend(toWitch, json.dumps({"action":"gaming","round":"poison", "role":"witch", \
-                                                                    "from":msg["from"], "message":"Skipped poisoning. Duh\n"}))
+                        mysend(from_sock, json.dumps({"action":"gaming","round":"poison", "role":"witch", \
+                                                        "from":msg["from"], "message":"Skipped poisoning. Duh\n"}))
                         
                 elif msg["round"] == "cure":
                     cure = msg["message"]
@@ -346,20 +343,20 @@ class Server:
                             if player.playerName == cure:
                                 player.set_status("alive")
                                 player.use_cure()
-                                
-                        to_sock = self.logged_name2sock[cure]
-                        mysend(to_sock, json.dumps({"action":"gaming","round":"discussion_k", "role":role, \
+                                role = player.get_role()
+                            to_sock = self.logged_name2sock[player.playerName]
+                            mysend(to_sock, json.dumps({"action":"gaming","round":"discussion_k", "role":role, \
+                                                        "from":msg["from"], "message":"Fortunately, " + cure + \
+                                                        "is cured by the witch last night.\n"}))
+                        mysend(from_sock, json.dumps({"action":"gaming","round":"action", "role":"witch", \
                                                                 "from":msg["from"], "message":"Finish curing!"}))
-
-                        for g in the_guys:
-                            to_sock = self.logged_name2sock[g]
-                            mysend(to_sock, json.dumps({"action":"gaming","round":"discussion_k", "role":"wolf", \
-                                                            "from":msg["from"], "message":""}))
                     else:
-                        for g in the_guys:
-                            to_sock = self.logged_name2sock[g]
-                            mysend(to_sock, json.dumps({"action":"gaming","round":"discussion_k", "role":"wolf", \
-                                                                "from":msg["from"], "message":""}))
+                        mysend(from_sock, json.dumps({"action":"gaming","round":"action", "role":"witch", \
+                                                            "from":msg["from"], "message":"Skipped curing. Cruel:(\n"}))
+                    for player in self.gaming_players:
+                            to_sock = self.logged_name2sock[player.playerName]
+                            mysend(to_sock, json.dumps({"action":"gaming","round":"discussion_k", "role":"", \
+                                                            "from":msg["from"], "message":""}))
 
                                 
 

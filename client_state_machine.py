@@ -329,10 +329,15 @@ class ClientSM:
                         if self.get_role == "witch":
                             mysend(self.s, json.dumps({"action":"gaming", "round":"poison", "role":self.role, \
                                                     "from":"[" + self.me + "]", "message":""}))
+                            send_back = json.loads(myrecv(self.s))["message"]
+                            self.out_msg += send_back
+                            self.out_msg += '"CURE" + player\'s name to cure a player ("SKIPC" to skip).'
                     elif my_msg[:5] == "SKIPC":
                         if self.get_role == "witch":
                             mysend(self.s, json.dumps({"action":"gaming", "round":"cure", "role":self.role, \
                                                     "from":"[" + self.me + "]", "message":""}))
+                            send_back = json.loads(myrecv(self.s))["message"]
+                            self.out_msg += send_back
                             self.set_gaming_state("asleep")
 
 
@@ -377,20 +382,16 @@ class ClientSM:
                                 death = json.loads(myrecv(self.s))["results"]
                                 self.out_msg += death + " is dead tonight." + '\n'
                                 self.out_msg += '"CURE" + player\'s name to cure a player ("SKIPC" to skip).'
+                    elif peer_msg["round"] == "discussion_k":
+                        self.set_gaming_state("discussion_k")
 
-                    
-            elif self.gaming_state == "discussion":
+            elif self.gaming_state == "discussion_k":
                 self.out_msg += "The sun has arisen, please wake up and discuss with other players."
                 if len(peer_msg) > 0:
                     peer_msg = json.loads(peer_msg)
                     if peer_msg["round"] == "discussion_k":
                         self.out_msg += peer_msg["message"]
-                    elif peer_msg["round"] == "discussion":
-                        self.out_msg += peer_msg["from"] + peer_msg["message"]
-                
-                if len(my_msg) > 0:
-                    
-                            
+            
             else:        
                 if len(peer_msg) > 0:    # peer's stuff, coming in
                     peer_msg = json.loads(peer_msg)
