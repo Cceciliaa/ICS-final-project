@@ -220,6 +220,9 @@ class ClientSM:
                     else:
                         self.set_gaming_state("asleep")
                 else:
+                    mysend(self.s, json.dumps({"action":"listAlive"}))
+                    logged_in = json.loads(myrecv(self.s))["results"]
+                    self.out_msg += "Now in game: " + logged_in + '\n'
                     self.out_msg += 'Type "start" to start the game\n'
                     self.out_msg += '-----------------------------------\n'
             
@@ -242,6 +245,7 @@ class ClientSM:
                     else:
                         self.set_gaming_state("asleep")
 
+
                     #Prophet's making an action
 
                         
@@ -263,24 +267,38 @@ class ClientSM:
                     if my_msg[:4] == "KILL":
                         kill = my_msg[4:]
                         kill.strip()
-                        self.out_msg += "You have killed " + kill + ", now please go back to sleep.\n"
-                        mysend(self.s, json.dumps({"action":"gaming", "round":"kill", "role":self.role, \
-                                                    "from":"[" + self.me + "]", "message":kill}))
-                        send_back = json.loads(myrecv(self.s))["message"]
-                        if send_back == "asleep":
-                            self.set_gaming_state("asleep")
+                        if len(kill) == 0:
+                            self.out_msg += "Now please chat with your partners (if any) and decide a player to kill.\n"
+                            mysend(self.s, json.dumps({"action":"listAlive"}))
+                            logged_in = json.loads(myrecv(self.s))["results"]
+                            self.out_msg += "Now gaming: " + logged_in + '\n'
+                            self.out_msg += '''To kill a player, type "KILL" + player's name.\n'''
                         else:
-                            self.out_msg += send_back
+                            self.out_msg += "You have killed " + kill + ", now please go back to sleep.\n"
+                            mysend(self.s, json.dumps({"action":"gaming", "round":"kill", "role":self.role, \
+                                                    "from":"[" + self.me + "]", "message":kill}))
+                            send_back = json.loads(myrecv(self.s))["message"]
+                            if send_back == "asleep":
+                                self.set_gaming_state("asleep")
+                            else:
+                                self.out_msg += send_back
 
                     #prophet's instructions
                     elif my_msg[:5] == "CHECK":
                         check = my_msg[5:]
                         check.strip()
-                        mysend(self.s, json.dumps({"action":"gaming", "round":"check", "role":self.role, \
-                                                    "from":"[" + self.me + "]", "message":check}))
-                        send_back = json.loads(myrecv(self.s))["message"]
-                        self.out_msg += check + " is a " + send_back
-                        self.set_gaming_state("asleep")
+                        if len(check) == 0:
+                            self.out_msg += "Choose a player to see his/her role (type the name of the player): \n"
+                            mysend(self.s, json.dumps({"action":"listAll"}))
+                            logged_in = json.loads(myrecv(self.s))["results"]
+                            self.out_msg += "Now gaming: " + logged_in + '\n'
+                            self.out_msg += 'Type "CHECK" + player\'s name to check their identity.\n'
+                        else:
+                            mysend(self.s, json.dumps({"action":"gaming", "round":"check", "role":self.role, \
+                                                        "from":"[" + self.me + "]", "message":check}))
+                            send_back = json.loads(myrecv(self.s))["message"]
+                            self.out_msg += check + " is a " + send_back
+                            self.set_gaming_state("asleep")
                     #witch's instructions
                     elif my_msg[:6] == "POISON":
                         poison = my_msg[6:]
