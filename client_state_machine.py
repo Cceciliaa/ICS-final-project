@@ -380,11 +380,16 @@ class ClientSM:
 
                     
             elif self.gaming_state == "discussion":
-                
+                self.out_msg += "The sun has arisen, please wake up and discuss with other players."
                 if len(peer_msg) > 0:
                     peer_msg = json.loads(peer_msg)
                     if peer_msg["round"] == "discussion_k":
                         self.out_msg += peer_msg["message"]
+                    elif peer_msg["round"] == "discussion":
+                        self.out_msg += peer_msg["from"] + peer_msg["message"]
+                
+                if len(my_msg) > 0:
+                    
                             
             else:        
                 if len(peer_msg) > 0:    # peer's stuff, coming in
