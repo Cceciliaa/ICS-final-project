@@ -41,6 +41,7 @@ class Server:
         self.dead = []
         self.newkilled = ''
         self.newpoisoned = ''
+        self.poll = {player: 0 for player in self.gaming_players}
     def new_client(self, sock):
         #add to all sockets and to new clients
         print('new client...')
@@ -316,8 +317,7 @@ class Server:
                             if player.playerName == poison:
                                 player.set_status("dead")
                                 self.newpoisoned = player.playerName
-                            if player.playerName == from_name:
-                                player.use_poison()
+                        player.use_poison()
 
                     elif poison == "skip":
                         mysend(from_sock, json.dumps({"action":"gaming","round":"poison", "role":"witch", \
@@ -330,8 +330,9 @@ class Server:
                             if player.playerName == cure:
                                 player.set_status("alive")
                                 self.newkilled = ''
-                            if player.playerName == from_name:
-                                player.use_poison()
+                                if self.newpoisoned == player.playerName:
+                                    self.newpoisoned == ''
+                        player.use_cure()
                         mysend(from_sock, json.dumps({"action":"gaming","round":"cure", "role":"witch", \
                                                                 "from":msg["from"], "message":"Finish curing!"}))
                     elif cure == "skip":
@@ -340,35 +341,50 @@ class Server:
                     else:
                         mysend(from_sock, json.dumps({"action":"gaming","round":"cure", "role":"witch", \
                                                                 "from":msg["from"], "message":"FAIL"}))
-                    for player in self.gaming_players:
-                            message = "The sun has arisen. Now enter discussion.\n"
-                            if len(self.newkilled) == 0 and len(self.newpoisoned) == 0:
-                                message += "No one was killed last night.\n"
-                            elif len(self.newkilled) == 0:
-                                message += "Last night " + self.newpoisoned + " was killed.\n"
-                            elif len(self.newpoisoned) == 0:
-                                message += "Last night " + self.newkilled + " was killed.\n"
-                            else:
-                                message += "Last night " + self.newkilled + " and" + self.newpoisoned + " were killed.\n"
-                            to_sock = self.logged_name2sock[player.playerName]
-                            mysend(to_sock, json.dumps({"action":"gaming","round":"discuss",\
+                    
+                    message = "The sun has arisen. Now enter discussion.\n"
+                    if self.newkilled == "" and self.newpoisoned == "":
+                        message += "No one was killed last night.\n"
+                    elif self.newkilled == "":
+                        message += "Last night " + self.newpoisoned + " was killed.\n"
+                    elif self.newpoisoned == "":
+                        message += "Last night " + self.newkilled + " was killed.\n"
+                    elif self.newkilled == self.newpoisoned:
+                        message += "Last night " + self.newkilled + " was killed.\n"
+                    else:
+                        message += "Last night " + self.newkilled + " and" + self.newpoisoned + " were killed.\n"
+                        
+                    for player in self.gaming_players:    
+                        to_sock = self.logged_name2sock[player.playerName]
+                        mysend(to_sock, json.dumps({"action":"gaming","round":"discuss",\
                                                             "from":"server", "message": message}))
                                 
-            elif msg["round"] == "discussion":
-                if self.players.judge_result() == "continue":
+            
+    
+                elif msg["round"] == "discussion":
+                    from_name = self.logged_sock2name[from_sock]
+                    the_guys = self.group.list_me(from_name)
+                    #said = msg["from"]+msg["message"]
+                    said2 = text_proc(msg["message"], from_name)
+                    self.indices[from_name].add_msg_and_index(said2)
+                    for g in the_guys[1:]:
+                        to_sock = self.logged_name2sock[g]
+                        self.indices[g].add_msg_and_index(said2)
+                        mysend(to_sock, json.dumps({"action":"gaming","round":"discussion", "from":msg["from"], "message":msg["message"]}))
+                
+                elif msg["round"] == "poll":
+                    for g in the_guys[1:]:
+                        to_sock = self.logged_name2sock[g]
+                        mysend(to_sock, json.dumps({"action":"gaming","round":"poll", "from":msg["from"], "message":msg["message"]}))
                     message = msg["message"]
+                    
                     for player in self.gaming_players:
-                        if player.playerName != from_name:
-                            to_sock = self.logged_name2sock[player.playerName]
-                            mysend(to_sock, json.dumps({"action":"gaming","round":"discussion", \
-                                                                "from":msg["from"], "message":message}))
-                else:
-                    message = "Game over! \n"
-                    message += "The winning side: " + self.g.judge_resule()
-                    for player in self.gaming_players:
-                        to_sock = self.logged_name2sock[player.playerName]
-                        mysend(to_sock, json.dumps({"action":"gaming","round":"end",\
-                                                            "from":"server", "message": message}))
+                        
+                        if message == player:
+                            self.poll[player] += 1
+                            print(self.poll)
+                        
+                        
 
                 
             else:
