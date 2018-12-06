@@ -343,18 +343,18 @@ class Server:
                         mysend(from_sock, json.dumps({"action":"gaming","round":"cure", "role":"witch", \
                                                                 "from":msg["from"], "message":"FAIL"}))
                     for player in self.gaming_players:
-                            msg = "The sun has arisen.\n"
+                            message = "The sun has arisen.\n"
                             if len(self.newkilled) == 0 and len(self.newpoisoned) == 0:
-                                msg += "No one was killed last night.\n"
+                                message += "No one was killed last night.\n"
                             elif len(self.newkilled) == 0:
-                                msg += "Last night " + self.newpoisoned + " was killed.\n"
+                                message += "Last night " + self.newpoisoned + " was killed.\n"
                             elif len(self.newpoisoned) == 0:
-                                msg += "Last night " + self.newkilled + " was killed.\n"
+                                message += "Last night " + self.newkilled + " was killed.\n"
                             else:
-                                msg += "Last night " + self.newkilled + " and" + self.newpoisoned + " were killed.\n"
+                                message += "Last night " + self.newkilled + " and" + self.newpoisoned + " were killed.\n"
                             to_sock = self.logged_name2sock[player.playerName]
                             mysend(to_sock, json.dumps({"action":"gaming","round":"discussion",\
-                                                            "from":msg["from"], "message": msg}))
+                                                            "from":"server", "message": message}))
 
                                 
             elif msg["round"] == "discussion":
