@@ -278,10 +278,11 @@ class ClientSM:
                             mysend(self.s, json.dumps({"action":"gaming", "round":"kill", "role":self.role, \
                                                     "from":"[" + self.me + "]", "message":kill}))
                             send_back = json.loads(myrecv(self.s))["message"]
-                            if send_back == "asleep":
-                                self.set_gaming_state("asleep")
-                            else:
-                                self.out_msg += send_back
+                            if send_back["round"] != "discussion_k":
+                                if send_back["message"] == "asleep":
+                                    self.set_gaming_state("asleep")
+                                else:
+                                    self.out_msg += send_back
 
                     #prophet's instructions
                     elif my_msg[:5] == "CHECK":
@@ -306,13 +307,9 @@ class ClientSM:
                         mysend(self.s, json.dumps({"action":"gaming", "round":"poison", "role":self.role, \
                                                     "from":"[" + self.me + "]", "message":poison}))
                         send_back = json.loads(myrecv(self.s))["message"]
-                        self.out_msg += send_back
-                        
-
-
-
-
-                        
+                        if send_back["round"] != "discussion_k":
+                            if send_back["round"] == "poison":
+                                self.out_msg += send_back
 
                     elif my_msg[:4] == "CURE":
                         cure = my_msg[4:]

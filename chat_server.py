@@ -263,7 +263,6 @@ class Server:
                                 self.wolves.leave(kill)
                             self.dead.append(player)
                             player.set_status("dead")
-                            role = player.get_role()
                         to_sock = self.logged_name2sock[player.playerName]
                         mysend(to_sock, json.dumps({"action":"gaming","round":"discussion_k", "role":'', \
                                                         "from":msg["from"], "message":"Unfortunately, " + kill + \
@@ -305,8 +304,6 @@ class Server:
                                 toWitch = self.logged_name2sock[player.playerName]
                                 mysend(toWitch, json.dumps({"action":"gaming","round":"action", "role":"witch", \
                                                             "from":msg["from"], "message":"You are now awaken. \n"}))
-                    
-
 
                 elif msg["round"] == "poison":
                     poison = msg["message"]
