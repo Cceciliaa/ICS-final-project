@@ -281,14 +281,41 @@ class Server:
                                 to_sock = self.logged_name2sock[g]
                                 mysend(to_sock, json.dumps({"action":"gaming","round":"kill", "role":"wolf", \
                                                             "from":msg["from"], "message":"asleep"}))
-
+                    
+                    wake = False
                     for player in self.gaming_players:
                         if player.get_role() == "prophet":
-                            toProphet = self.logged_name2sock[player.playerName]
-                            mysend(toProphet, json.dumps({"action":"gaming","round":"action", "role":"prophet", \
+                            if player.get_status() == 'alive':
+                                toProphet = self.logged_name2sock[player.playerName]
+                                mysend(toProphet, json.dumps({"action":"gaming","round":"action", "role":"prophet", \
                                                         "from":msg["from"], "message":"You are now awaken. \n"}))
-
-
+                                wake = True
+                                break
+                        elif player.get_role() == "witch":
+                            if player.get_status() == 'alive':
+                                toWitch = self.logged_name2sock[player.playerName]
+                                mysend(toProphet, json.dumps({"action":"gaming","round":"action", "role":"witch", \
+                                                        "from":msg["from"], "message":"You are now awaken. \n"}))
+                                wake = True
+                                break
+                    if wake == False:  
+                        message = "The sun has arisen. Now enter discussion.\n"
+                        if self.newkilled == "" and self.newpoisoned == "":
+                            message += "No one was killed last night.\n"
+                        elif self.newkilled == "":
+                            message += "Last night " + self.newpoisoned + " was killed.\n"
+                        elif self.newpoisoned == "":
+                            message += "Last night " + self.newkilled + " was killed.\n"
+                        elif self.newkilled == self.newpoisoned:
+                            message += "Last night " + self.newkilled + " was killed.\n"
+                        else:
+                            message += "Last night " + self.newkilled + " and" + self.newpoisoned + " were killed.\n"
+                            
+                        for player in self.gaming_players:    
+                            to_sock = self.logged_name2sock[player.playerName]
+                            mysend(to_sock, json.dumps({"action":"gaming","round":"discuss",\
+                                                                "from":"server", "message": message}))
+                            
 
                 elif msg["round"] == "check":
                     check = msg["message"]
@@ -302,9 +329,8 @@ class Server:
                             
                     for player in self.gaming_players:
                         if player.get_role() == "witch":
-                            if player.get_poison != 0:
-                                toWitch = self.logged_name2sock[player.playerName]
-                                mysend(toWitch, json.dumps({"action":"gaming","round":"action", "role":"witch", \
+                            toWitch = self.logged_name2sock[player.playerName]
+                            mysend(toWitch, json.dumps({"action":"gaming","round":"action", "role":"witch", \
                                                             "from":msg["from"], "message":"You are now awaken. \n"}))
 
                 elif msg["round"] == "poison":
@@ -316,6 +342,7 @@ class Server:
                         for player in self.gaming_players:
                             if player.playerName == poison:
                                 player.set_status("dead")
+                                self.dead.append(player)
                                 self.newpoisoned = player.playerName
                         player.use_poison()
 
@@ -330,6 +357,7 @@ class Server:
                             if player.playerName == cure:
                                 player.set_status("alive")
                                 self.newkilled = ''
+                                self.dead.remove(player)
                                 if self.newpoisoned == player.playerName:
                                     self.newpoisoned == ''
                         player.use_cure()
@@ -366,7 +394,6 @@ class Server:
                     the_guys = self.group.list_me(from_name)
                     #said = msg["from"]+msg["message"]
                     said2 = text_proc(msg["message"], from_name)
-                    self.indices[from_name].add_msg_and_index(said2)
                     for g in the_guys[1:]:
                         to_sock = self.logged_name2sock[g]
                         self.indices[g].add_msg_and_index(said2)

@@ -432,13 +432,26 @@ class ClientSM:
                         self.out_msg += "Please type the player name here:"
                         mysend(self.s, json.dumps({"action":"gaming", "round":"poll",\
                                                "from":"[" + self.me + "]", "message":my_msg}))
-                        
                     else:
                         self.out_msg += peer_msg["from"] + peer_msg["message"]
             elif self.gaming_state == "poll":
                 if len(my_msg) > 0:
                     mysend(self.s, json.dumps({"action":"gaming", "round":"poll",\
                                                "from":"[" + self.me + "]", "message":my_msg}))
+                if len(peer_msg) > 0:
+                    peer_msg = json.loads(peer_msg)
+                    if peer_msg["round"] == "vote_result":
+                        self.out_msg += peer_msg["message"]
+                        self.out_msg += "Night is coming, please close your eyes...\n"
+                        if self.get_role() == "wolf":
+                            self.set_gaming_state("action")
+                            self.out_msg += "Now please chat with your partners (if any) and decide a player to kill.\n"
+                            mysend(self.s, json.dumps({"action":"listAlive"}))
+                            logged_in = json.loads(myrecv(self.s))["results"]
+                            self.out_msg += "Now gaming: " + logged_in + '\n'
+                            self.out_msg += '''To kill a player, type "KILL" + player's name.\n'''
+                        else:
+                            self.set_gaming_state("asleep")
             
             else:        
                 if len(peer_msg) > 0:    # peer's stuff, coming in
