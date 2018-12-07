@@ -49,21 +49,21 @@ class Players():
             if player.get_status == 'alive':
                 alive[player.playerName] = player.get_role()
         if 'wolf' not in alive.values():
-            if 'villager' in alive.values():
+            if 'villager' not in alive.values():
+                self.win_side = 'no one wins, both villagers and wolves are dead. \n'
+                self.status = 'gameover'
+                return self.win_side
+            else:
                 self.win_side = 'villager\n'
                 self.status = 'gameover'
                 return self.win_side
-            else:
-                self.win_side = 'no one wins, both villagers and wolves are dead. \n'
-                self.status = 'gameover'
-                return self.win_side
         elif 'villager' not in alive.values():
-            if 'wolf' in alive.values():
-                self.win_side = 'wolf\n'
+            if 'wolf' not in alive.values():
+                self.win_side = 'no one wins, both villagers and wolves are dead. \n'
                 self.status = 'gameover'
                 return self.win_side
             else:
-                self.win_side = 'no one wins, both villagers and wolves are dead. \n'
+                self.win_side = 'wolf\n'
                 self.status = 'gameover'
                 return self.win_side
         elif 'prophet' not in alive.values() and 'witch' not in alive.values():

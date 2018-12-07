@@ -230,6 +230,17 @@ class Server:
                     if player.get_status() == "alive":
                         msg += str(player.playerName) + ", "
                 mysend(from_sock, json.dumps({"action":"list", "results":msg}))
+                
+            elif msg["action"] == "checkAlive":
+                from_name = self.logged_sock2name[from_sock]
+                msg = ''
+                for player in self.gaming_players:
+                    if player.playerName == from_name:
+                        if player.get_status() == "alive":
+                            msg = 'alive'
+                        else:
+                            msg = 'dead'
+                mysend(from_sock, json.dumps({"action":"list", "results":msg}))
 
             # GET the player just dead
             elif msg["action"] == "getDead":
@@ -262,9 +273,9 @@ class Server:
                 for player in self.gaming_players:
                     if player.get_role() == "wolf":
                         self.wolves.join(player.playerName)
-                        self.wg.append(player.playerName)
                         if len(self.wg) > 0:
                             self.wolves.connect(player.playerName, self.wg[0])
+                        self.wg.append(player.playerName)
                     elif player.get_role() == "witch":
                         player.set_poison()
                         player.set_cure()
@@ -275,7 +286,6 @@ class Server:
                 if msg["round"] == "action":
                     if msg["role"] == "wolf":
                         the_guys = self.wolves.list_me(from_name)
-                        said2 = text_proc(msg["message"], from_name)
                         for g in the_guys[1:]:
                             to_sock = self.logged_name2sock[g]
                             mysend(to_sock, json.dumps({"action":"gaming","round":"action", "role":"wolf", \
@@ -286,10 +296,7 @@ class Server:
                     kill_state = False
                     for player in self.gaming_players:
                         if player.playerName == kill and player.get_status() == "alive":
-                            if player.get_role() == "wolf":
-                                self.wolves.leave(kill)
                             self.dead.append(player)
-                            #player.set_status("dead")
                             self.newkilled = player.playerName
                             kill_state = True
                             break
@@ -302,8 +309,8 @@ class Server:
                             the_guys = self.wolves.list_me(from_name)
                             for g in the_guys:
                                 to_sock = self.logged_name2sock[g]
-                                mysend(to_sock, json.dumps({"action":"gaming","round":"kill", "role":"wolf", \
-                                                            "from":msg["from"], "message":"asleep"}))
+                                mysend(to_sock, json.dumps({"action":"gaming","round":"asleep", "role":"wolf", \
+                                                            "from":msg["from"], "message":self.newkilled}))
                     
                     wake = False
                     for player in self.gaming_players:
@@ -349,6 +356,7 @@ class Server:
                                 to_sock = self.logged_name2sock[player.playerName]
                                 mysend(to_sock, json.dumps({"action":"gaming","round":"discuss",\
                                                                     "from":"server", "message": message}))
+    
                         else:
                             message += "Game ends! Winning side: " + self.players.judge_result()
                             for player in self.gaming_players:    
