@@ -30,7 +30,7 @@ class Group:
 
     def join(self, name):
         self.members[name] = S_ALONE
-        return
+        return self.members
 
     def is_member(self, name):
         return name in self.members.keys()

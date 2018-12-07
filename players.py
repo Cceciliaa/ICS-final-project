@@ -11,7 +11,7 @@ class Players():
 
     def role_assign(self, chat_group):
         #roles for 2 players is just for test
-        roles = {2:["villager","wolf"],\
+        roles = {3:["villager","wolf","wolf"],\
                  4:["villager","witch", "wolf", "prophet"],\
                  5:['villager', 'villager', 'wolf', 'prophet', 'witch'],\
                  6:['villager','villager', 'wolf', 'prophet', 'witch', 'wolf'],\
@@ -37,7 +37,7 @@ class Players():
     
     def get_alives(self):
         alive = []
-        for player in self.gaming_grp:
+        for player in self.gaming_group:
             if player.get_status() == 'alive':
                 alive.append(player.playerName)
         alivePlayers = ', '.join(alive)
@@ -45,29 +45,34 @@ class Players():
     
     def judge_result(self):
         alive = {}
-        for player in self.get_alives():
+        for player in self.gaming_group:
+            if player.get_status == 'alive':
                 alive[player.playerName] = player.get_role()
-        if len(alive) > 3:
-            if 'wolf' not in alive.values():
-                self.win_side = 'villigers'
+        if 'wolf' not in alive.values():
+            if 'villager' in alive.values():
+                self.win_side = 'villager\n'
                 self.status = 'gameover'
-            elif 'villager' not in alive.values():
-                self.win_side = 'wolves'
+                return self.win_side
+            else:
+                self.win_side = 'no one wins, both villagers and wolves are dead. \n'
                 self.status = 'gameover'
+                return self.win_side
+        elif 'villager' not in alive.values():
+            if 'wolf' in alive.values():
+                self.win_side = 'wolf\n'
+                self.status = 'gameover'
+                return self.win_side
+            else:
+                self.win_side = 'no one wins, both villagers and wolves are dead. \n'
+                self.status = 'gameover'
+                return self.win_side
+        elif 'prophet' not in alive.values() and 'witch' not in alive.values():
+            self.win_side = 'wolves\n'
+            self.status = 'gameover'
             return self.win_side
         else:
-            wolf_number = 0
-            for role in alive.values():
-                if role == 'wolf':
-                    wolf_number += 1
-            
-            if wolf_number >= (len(alive) - wolf_number):
-                self.win_side = 'wolves'
-                self.status = 'gameover'
-                
-                self.win_side
+            return "continue"
         
-        return "continue"
         
   
             
