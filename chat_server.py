@@ -285,19 +285,21 @@ class Server:
                     wake = False
                     for player in self.gaming_players:
                         if player.get_role() == "prophet":
-                            if player.get_status() == 'alive':
+                            if player.get_status() == 'alive' or player.playerName == self.newkilled:
                                 toProphet = self.logged_name2sock[player.playerName]
                                 mysend(toProphet, json.dumps({"action":"gaming","round":"action", "role":"prophet", \
                                                         "from":msg["from"], "message":"You are now awaken. \n"}))
                                 wake = True
                                 break
-                        elif player.get_role() == "witch":
-                            if player.get_status() == 'alive':
-                                toWitch = self.logged_name2sock[player.playerName]
-                                mysend(toProphet, json.dumps({"action":"gaming","round":"action", "role":"witch", \
-                                                        "from":msg["from"], "message":"You are now awaken. \n"}))
-                                wake = True
-                                break
+                    if wake == False:  
+                        for player in self.gaming_players:
+                            if player.get_role() == "witch":
+                                if player.get_status() == 'alive' or player.playerName == self.newkilled:
+                                    toWitch = self.logged_name2sock[player.playerName]
+                                    mysend(toWitch, json.dumps({"action":"gaming","round":"action", "role":"witch", \
+                                                            "from":msg["from"], "message":"You are now awaken. \n"}))
+                                    wake = True
+                                    break
                     if wake == False:  
                         message = "The sun has arisen. Now enter discussion.\n"
                         if self.newkilled == "" and self.newpoisoned == "":
@@ -402,16 +404,24 @@ class Server:
                 elif msg["round"] == "poll":
                     from_name = self.logged_sock2name[from_sock]
                     the_guys = self.group.list_me(from_name)
-                    for g in the_guys[1:]:
+                    for g in the_guys:
                         to_sock = self.logged_name2sock[g]
-                        mysend(to_sock, json.dumps({"action":"gaming","round":"poll", "from":msg["from"], "message":msg["message"]}))
-                    message = msg["message"]
+                        mysend(to_sock, json.dumps({"action":"gaming","round":"vote_result", "from":msg["from"], "message":"test"}))
+            
                     
-                    for player in self.gaming_players:
+                    
+                    
+                    
+                    #for g in the_guys[1:]:
+                        #to_sock = self.logged_name2sock[g]
+                       # mysend(to_sock, json.dumps({"action":"gaming","round":"poll", "from":msg["from"], "message":msg["message"]}))
+                    #message = msg["message"]
+                    
+                   # for player in self.gaming_players:
                         
-                        if message == player.playerName:
-                            self.poll[player.playerName] += 1
-                            print(self.poll)
+                       # if message == player.playerName:
+                        #    self.poll[player.playerName] += 1
+                        #    print(self.poll)
                         
                         
 
