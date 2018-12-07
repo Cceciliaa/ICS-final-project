@@ -444,7 +444,6 @@ class ClientSM:
                         self.out_msg += "Please type the player name here:"
                         mysend(self.s, json.dumps({"action":"gaming", "round":"poll",\
                                                "from":"[" + self.me + "]", "message":my_msg}))
-                    
     
     
     
@@ -479,8 +478,18 @@ class ClientSM:
                             logged_in = json.loads(myrecv(self.s))["results"]
                             self.out_msg += "Now gaming: " + logged_in + '\n'
                             self.out_msg += '''To kill a player, type "KILL" + player's name.\n'''
+                    
                         else:
                             self.set_gaming_state("asleep")
+                    elif peer_msg["round"] == "repoll":
+                        self.set_gaming_state("poll")
+                        self.out_msg += "Tied! Please poll again!\n----------------------------------------------\n"
+                        #mysend(self.s, json.dumps({"action":"listAlive"}))
+                        #logged_in = json.loads(myrecv(self.s))["results"]
+                        #self.out_msg += "Now alive: " + logged_in + '\n'
+                        self.out_msg += "Please type the player name here:"
+                        mysend(self.s, json.dumps({"action":"gaming", "round":"poll",\
+                                               "from":"[" + self.me + "]", "message":my_msg}))
                     else:
                         self.out_msg += peer_msg["message"]
             

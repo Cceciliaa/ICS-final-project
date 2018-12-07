@@ -43,7 +43,7 @@ class Server:
         self.newpoisoned = ''
         self.poll = {}
         self.pollNumber = 0
-        self.values = [0,0,0,0]
+        self.values = []
     def new_client(self, sock):
         #add to all sockets and to new clients
         print('new client...')
@@ -343,34 +343,19 @@ class Server:
                 elif msg["round"] == "poison":
                     from_name = self.logged_sock2name[from_sock]
                     poison = msg["message"]
-                    if poison != "skip" and player.get_poison() != 0:
+                    if poison != "skip":
+                        mysend(from_sock, json.dumps({"action":"gaming","round":"poison", "role":"witch", \
+                                                        "from":msg["from"], "message":"Finish poisoning! Tehehee \n"}))
                         for player in self.gaming_players:
                             if player.playerName == poison:
                                 player.set_status("dead")
                                 self.dead.append(player)
                                 self.newpoisoned = player.playerName
                         player.use_poison()
-                        if player.get_cure() != 0:
-                            mysend(from_sock, json.dumps({"action":"gaming","round":"poison", "role":"witch", \
-                                                        "from":msg["from"], "message":"Finish poisoning! Tehehee \n"}))
-                        else:
-                            mysend(from_sock, json.dumps({"action":"gaming","round":"skip", "role":"witch", \
-                                                        "from":msg["from"], "message":"You have used up your cure! \n"}))
 
                     elif poison == "skip":
-                        self.newpoisoned = ''
                         mysend(from_sock, json.dumps({"action":"gaming","round":"poison", "role":"witch", \
                                                         "from":msg["from"], "message":"Skipped poisoning. Duh\n"}))
-                    
-                    elif player.get_poison() == 0:
-                        self.newpoisoned = ''
-                        if player.get_cure() != 0:
-                            mysend(from_sock, json.dumps({"action":"gaming","round":"cure", "role":"witch", \
-                                                        "from":msg["from"], "message":"\n"}))
-                        else:
-                            mysend(from_sock, json.dumps({"action":"gaming","round":"skip", "role":"witch", \
-                                                        "from":msg["from"], "message":"You have used up your poison and cure! \n"}))
-    
                 elif msg["round"] == "cure":
                     cure = msg["message"]
                     from_name = self.logged_sock2name[from_sock]
@@ -428,42 +413,47 @@ class Server:
                     from_name = self.logged_sock2name[from_sock]
                     the_guys = self.group.list_me(from_name)
                     message = msg["message"]
-                    if self.values[len(self.values)-1] == self.values[len(self.values)-2]:
-                        for player in self.gaming_players:
-                            if player.status == "alive":
-                                self.poll[player.playerName] = 0
-                        mysend(from_sock, json.dumps({"action":"gaming","round":"poll", "from":msg["from"],"message":"Tied! please vote again (Can't eliminate more than one player):"}))
-                        for player in self.gaming_players:
-                            if message == player.playerName:
-                                try:
-                                    self.poll[player.playerName] += 1
-                                    self.pollNumber += 1
-                                except:
-                                    self.pollNumber += 0
-                                    mysend(from_sock, json.dumps({"action":"gaming","round":"poll", "from":msg["from"],"message":"Wrong name! Please try again:"}))
-                                if self.pollNumber == len(self.poll):
-                                    self.values = []
-                                    for v in self.poll.values():
-                                        self.values.append(v)
-                                        self.values.sort()
-                                        print(self.values)
 
+                        #mysend(from_sock, json.dumps({"action":"gaming","round":"poll", "from":msg["from"],"message":"Tied! please vote again (Can't eliminate more than one player):"}))
+                    for player in self.gaming_players:
+                        if message == player.playerName:
+                            try:
+                                self.poll[player.playerName] += 1
+                                self.pollNumber += 1
+                            except:
+                                self.pollNumber += 0
+                                mysend(from_sock, json.dumps({"action":"gaming","round":"poll", "from":msg["from"],"message":"Wrong name! Please try again:"}))
+                            if self.pollNumber == len(self.poll):
+                                self.values = []
+                                for v in self.poll.values():
+                                    self.values.append(v)
+                                    self.values.sort()
+                                    print(self.values)
+                                if self.values[len(self.values)-1] == self.values[len(self.values)-2]:
+                                    self.pollNumber = 0
+                                    for player in self.gaming_players:
+                                        if player.status == "alive":
+                                            self.poll[player.playerName] = 0
+                                    for g in the_guys:
+                                        to_sock = self.logged_name2sock[g]
+                                        mysend(to_sock, json.dumps({"action":"gaming","round":"repoll", "from":msg["from"],"message":"Tied! please vote again (Can't eliminate more than one player):"}))
+                                        
                                 
-                    else:
-                        maxp = 0
-                        eliminate = ""
-                        for k,v in self.poll.items():
-                            if v >= maxp:
-                                maxp = v
-                                eliminate = k
-                        for player in self.gaming_players:
-                            if player.playerName == eliminate:
-                                player.status == "dead"
-                        mysend(to_sock, json.dumps({"action":"gaming","round":"poll", "from":msg["from"], "message":eliminate + " is eliminated."}))
-                        result = self.judge_result()
-                        for g in the_guys:
-                            to_sock = self.logged_name2sock[g]
-                            mysend(to_sock, json.dumps({"action":"gaming","round":"vote_result", "from":msg["from"], "message":result}))
+                                else:
+                                    maxp = 0
+                                    eliminate = ""
+                                    for k,v in self.poll.items():
+                                        if v >= maxp:
+                                            maxp = v
+                                            eliminate = k
+                                    for player in self.gaming_players:
+                                        if player.playerName == eliminate:
+                                            player.status == "dead"
+                                    for g in the_guys:
+                                        to_sock = self.logged_name2sock[g]
+                                        mysend(to_sock, json.dumps({"action":"gaming","round":"poll", "from":msg["from"], "message":eliminate + " is eliminated."}))
+                                        result = self.player.judge_result()
+                                        mysend(to_sock, json.dumps({"action":"gaming","round":"vote_result", "from":msg["from"], "message":result}))
             
                     
                     
