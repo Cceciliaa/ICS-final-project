@@ -338,19 +338,34 @@ class Server:
                 elif msg["round"] == "poison":
                     from_name = self.logged_sock2name[from_sock]
                     poison = msg["message"]
-                    if poison != "skip":
-                        mysend(from_sock, json.dumps({"action":"gaming","round":"poison", "role":"witch", \
-                                                        "from":msg["from"], "message":"Finish poisoning! Tehehee \n"}))
+                    if poison != "skip" and player.get_poison() != 0:
                         for player in self.gaming_players:
                             if player.playerName == poison:
                                 player.set_status("dead")
                                 self.dead.append(player)
                                 self.newpoisoned = player.playerName
                         player.use_poison()
+                        if player.get_cure() != 0:
+                            mysend(from_sock, json.dumps({"action":"gaming","round":"poison", "role":"witch", \
+                                                        "from":msg["from"], "message":"Finish poisoning! Tehehee \n"}))
+                        else:
+                            mysend(from_sock, json.dumps({"action":"gaming","round":"skip", "role":"witch", \
+                                                        "from":msg["from"], "message":"You have used up your cure! \n"}))
 
                     elif poison == "skip":
+                        self.newpoisoned = ''
                         mysend(from_sock, json.dumps({"action":"gaming","round":"poison", "role":"witch", \
                                                         "from":msg["from"], "message":"Skipped poisoning. Duh\n"}))
+                    
+                    elif player.get_poison() == 0:
+                        self.newpoisoned = ''
+                        if player.get_cure() != 0:
+                            mysend(from_sock, json.dumps({"action":"gaming","round":"cure", "role":"witch", \
+                                                        "from":msg["from"], "message":"\n"}))
+                        else:
+                            mysend(from_sock, json.dumps({"action":"gaming","round":"skip", "role":"witch", \
+                                                        "from":msg["from"], "message":"You have used up your poison and cure! \n"}))
+    
                 elif msg["round"] == "cure":
                     cure = msg["message"]
                     from_name = self.logged_sock2name[from_sock]
