@@ -41,7 +41,7 @@ class Server:
         self.dead = []
         self.newkilled = ''
         self.newpoisoned = ''
-        self.poll = {player: 0 for player in self.gaming_players if player.status == "alive"}
+        self.poll = {player.playName: 0 for player in self.gaming_players if player.status == "alive"}
     def new_client(self, sock):
         #add to all sockets and to new clients
         print('new client...')
@@ -409,8 +409,8 @@ class Server:
                     
                     for player in self.gaming_players:
                         
-                        if message == player:
-                            self.poll[player] += 1
+                        if message == player.playerName:
+                            self.poll[player.playerName] += 1
                             print(self.poll)
                         
                         
