@@ -426,9 +426,9 @@ class ClientSM:
                     elif peer_msg["round"] == "poll":
                         self.gaming_state = "poll"
                         self.out_msg += "Now comes the poll!\n----------------------------------------------\n"
-                        mysend(self.s, json.dumps({"action":"listAlive"}))
-                        logged_in = json.loads(myrecv(self.s))["results"]
-                        self.out_msg += "Now alive: " + logged_in + '\n'
+                        #mysend(self.s, json.dumps({"action":"listAlive"}))
+                        #logged_in = json.loads(myrecv(self.s))["results"]
+                        #self.out_msg += "Now alive: " + logged_in + '\n'
                         self.out_msg += "Please type the player name here:"
                         mysend(self.s, json.dumps({"action":"gaming", "round":"poll",\
                                                "from":"[" + self.me + "]", "message":my_msg}))

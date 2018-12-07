@@ -41,7 +41,7 @@ class Server:
         self.dead = []
         self.newkilled = ''
         self.newpoisoned = ''
-        self.poll = {player: 0 for player in self.gaming_players}
+        self.poll = {player: 0 for player in self.gaming_players if player.status == "alive"}
     def new_client(self, sock):
         #add to all sockets and to new clients
         print('new client...')
@@ -373,6 +373,8 @@ class Server:
                         mysend(to_sock, json.dumps({"action":"gaming","round":"discussion", "from":msg["from"], "message":msg["message"]}))
                 
                 elif msg["round"] == "poll":
+                    from_name = self.logged_sock2name[from_sock]
+                    the_guys = self.group.list_me(from_name)
                     for g in the_guys[1:]:
                         to_sock = self.logged_name2sock[g]
                         mysend(to_sock, json.dumps({"action":"gaming","round":"poll", "from":msg["from"], "message":msg["message"]}))
