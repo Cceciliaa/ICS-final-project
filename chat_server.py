@@ -386,7 +386,7 @@ class Server:
                     poison = msg["message"]
                     if poison != "skip":
                         mysend(from_sock, json.dumps({"action":"gaming","round":"poison", "role":"witch", \
-                                                        "from":msg["from"], "message":"Finish poisoning! Tehehee \n"}))
+                                                        "from":msg["from"], "message":"Finish poisoning! Tehehee \n----------------------------------------\n"}))
                         for player in self.gaming_players:
                             if player.playerName == poison:
                                 player.set_status("dead")
@@ -396,7 +396,7 @@ class Server:
 
                     elif poison == "skip":
                         mysend(from_sock, json.dumps({"action":"gaming","round":"poison", "role":"witch", \
-                                                        "from":msg["from"], "message":"Skipped poisoning. Duh\n"}))
+                                                        "from":msg["from"], "message":"Skipped poisoning. Duh\n----------------------------------------\n"}))
                 elif msg["round"] == "cure":
                     cure = msg["message"]
                     from_name = self.logged_sock2name[from_sock]
@@ -410,29 +410,29 @@ class Server:
                                     self.newpoisoned == ''
                         player.use_cure()
                         mysend(from_sock, json.dumps({"action":"gaming","round":"cure", "role":"witch", \
-                                                                "from":msg["from"], "message":"Finish curing!"}))
+                                                                "from":msg["from"], "message":"Finish curing!\n----------------------------------------\n"}))
                     elif cure == "skip":
                         mysend(from_sock, json.dumps({"action":"gaming","round":"cure", "role":"witch", \
-                                                            "from":msg["from"], "message":"Skipped curing. Cruel:(\n"}))
+                                                            "from":msg["from"], "message":"Skipped curing. Cruel:(\n----------------------------------------\n"}))
                     else:
                         mysend(from_sock, json.dumps({"action":"gaming","round":"cure", "role":"witch", \
                                                                 "from":msg["from"], "message":"FAIL"}))
                     
                     message = "The sun has arisen. Now enter discussion.\n"
                     if self.newkilled == "" and self.newpoisoned == "":
-                        message += "No one was killed last night.\n"
+                        message += "No one was killed last night.\n----------------------------------------\n"
                     elif self.newkilled == "":
-                        message += "Last night " + self.newpoisoned + " was killed.\n"
+                        message += "Last night " + self.newpoisoned + " was killed.\n----------------------------------------\n"
                     elif self.newpoisoned == "":
-                        message += "Last night " + self.newkilled + " was killed.\n"
+                        message += "Last night " + self.newkilled + " was killed.\n----------------------------------------\n"
                         for player in self.gaming_players:
                             if player.playerName == self.newkilled:
                                 player.set_status("dead")
                                 break
                     elif self.newkilled == self.newpoisoned:
-                        message += "Last night " + self.newkilled + " was killed.\n"
+                        message += "Last night " + self.newkilled + " was killed.\n----------------------------------------\n"
                     else:
-                        message += "Last night " + self.newkilled + " and" + self.newpoisoned + " were killed.\n"
+                        message += "Last night " + self.newkilled + " and " + self.newpoisoned + " were killed.\n----------------------------------------\n"
                         for player in self.gaming_players:
                             if player.playerName == self.newkilled:
                                 player.set_status("dead")

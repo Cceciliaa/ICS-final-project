@@ -1,4 +1,4 @@
-狼人杀-Werewolf kill
+ 狼人杀-Werewolf kill
 狼人杀（基于chatsystem）：
 
 server - 人数
