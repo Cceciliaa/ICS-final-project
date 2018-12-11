@@ -176,6 +176,8 @@ class ClientSM:
                     self.out_msg += 'You\'ve been invited to ' + self.peer + '\'s game\n'
                     self.out_msg += '------------------------------------\n'
                     self.state = S_START
+                elif peer_msg["action"] == "notenough":
+                    self.out_msg += "There's not enough players in the room to start a game(at least 4)."
 
 #==============================================================================
 # Start chatting, 'bye' for quit
@@ -200,31 +202,34 @@ class ClientSM:
         elif self.state == S_START:
             if len(my_msg) > 0: 
                 if my_msg == 'start':
-                    self.game_start()
-                    self.out_msg += "Game started!\n"
-                    self.out_msg += "----------------------------------------\n" 
-                    send_back = json.loads(myrecv(self.s))
-                    self.out_msg += "Your role is: " + send_back["role"] + ", and you are now " \
-                    + send_back["status"] + '\n'
-                    self.set_role(send_back["role"])
-                    self.set_gstatus(send_back["status"])
-                    self.state = S_GAMING
-                    self.out_msg += "Night is coming, please close your eyes... \n-----------------------------------\n"
-                    if self.get_role() == "wolf":
-                        self.set_gaming_state("action")
-                        mysend(self.s, json.dumps({"action":"checkPartner"}))
-                        back = json.loads(myrecv(self.s))
-                        self.out_msg += back["message"]
-                        if back["result"] == "group":
-                            self.out_msg += "Now please chat with your partners and decide a player to kill.\n"
-                        elif back["result"] == "alone":
-                            self.out_msg += "Now please decide a player to kill.\n"
-                        mysend(self.s, json.dumps({"action":"listAlive"}))
-                        logged_in = json.loads(myrecv(self.s))["results"]
-                        self.out_msg += "Now gaming: " + logged_in + '\n'
-                        self.out_msg += '''To kill a player, type "KILL" + player's name. \n-----------------------------------\n'''
-                    else:
-                        self.set_gaming_state("asleep")
+                    try:
+                        self.game_start()
+                        self.out_msg += "Game started!\n"
+                        self.out_msg += "----------------------------------------\n" 
+                        send_back = json.loads(myrecv(self.s))
+                        self.out_msg += "Your role is: " + send_back["role"] + ", and you are now " \
+                        + send_back["status"] + '\n'
+                        self.set_role(send_back["role"])
+                        self.set_gstatus(send_back["status"])
+                        self.state = S_GAMING
+                        self.out_msg += "Night is coming, please close your eyes... \n-----------------------------------\n"
+                        if self.get_role() == "wolf":
+                            self.set_gaming_state("action")
+                            mysend(self.s, json.dumps({"action":"checkPartner"}))
+                            back = json.loads(myrecv(self.s))
+                            self.out_msg += back["message"]
+                            if back["result"] == "group":
+                                self.out_msg += "Now please chat with your partners and decide a player to kill.\n"
+                            elif back["result"] == "alone":
+                                self.out_msg += "Now please decide a player to kill.\n"
+                            mysend(self.s, json.dumps({"action":"listAlive"}))
+                            logged_in = json.loads(myrecv(self.s))["results"]
+                            self.out_msg += "Now gaming: " + logged_in + '\n'
+                            self.out_msg += '''To kill a player, type "KILL" + player's name. \n-----------------------------------\n'''
+                        else:
+                            self.set_gaming_state("asleep")
+                    except:
+                        self.out_msg += "There's not enough players in the room to start a game(at least 4)."
                 else:
                     mysend(self.s, json.dumps({"action":"listAlive"}))
                     logged_in = json.loads(myrecv(self.s))["results"]

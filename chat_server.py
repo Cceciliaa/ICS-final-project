@@ -263,22 +263,29 @@ class Server:
                 '''set gaming group'''
                 from_name = self.logged_sock2name[from_sock]
                 the_guys = self.group.list_me(from_name)
-                self.gaming_players = self.players.get_gaming_group(the_guys)
-                for i in self.gaming_players[1:]:
-                    to_name = i.playerName
-                    to_sock = self.logged_name2sock[to_name]            
-                    mysend(to_sock, json.dumps({"action":"start","role":i.get_role(),"status":i.get_status()}))
-                me = self.gaming_players[0]
-                mysend(from_sock, json.dumps({"action":"start","role":me.get_role(),"status":me.get_status()}))
-                for player in self.gaming_players:
-                    if player.get_role() == "wolf":
-                        self.wolves.join(player.playerName)
-                        if len(self.wg) > 0:
-                            self.wolves.connect(player.playerName, self.wg[0])
-                        self.wg.append(player.playerName)
-                    elif player.get_role() == "witch":
-                        player.set_poison()
-                        player.set_cure()
+                try:
+                    self.gaming_players = self.players.get_gaming_group(the_guys)
+                    for i in self.gaming_players[1:]:
+                        to_name = i.playerName
+                        to_sock = self.logged_name2sock[to_name]            
+                        mysend(to_sock, json.dumps({"action":"start","role":i.get_role(),"status":i.get_status()}))
+                    me = self.gaming_players[0]
+                    mysend(from_sock, json.dumps({"action":"start","role":me.get_role(),"status":me.get_status()}))
+                    for player in self.gaming_players:
+                        if player.get_role() == "wolf":
+                            self.wolves.join(player.playerName)
+                            if len(self.wg) > 0:
+                                self.wolves.connect(player.playerName, self.wg[0])
+                            self.wg.append(player.playerName)
+                        elif player.get_role() == "witch":
+                            player.set_poison()
+                            player.set_cure()
+                except:
+                    from_name = self.logged_sock2name[from_sock]
+                    the_guys = self.group.list_me(from_name)
+                    for g in the_guys:
+                        to_sock = self.logged_name2sock[g]
+                        mysend(to_sock, json.dumps({"action":"notenough"}))
                     
             elif msg["action"] == "gaming":
                 from_name = self.logged_sock2name[from_sock]
