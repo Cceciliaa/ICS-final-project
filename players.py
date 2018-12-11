@@ -35,18 +35,10 @@ class Players():
         self.gaming_group = self.role_assign(chat_group)
         return self.gaming_group
     
-    def get_alives(self):
-        alive = []
-        for player in self.gaming_group:
-            if player.get_status() == 'alive':
-                alive.append(player.playerName)
-        alivePlayers = ', '.join(alive)
-        return alivePlayers
-    
-    def judge_result(self):
+    def judge_result(self,gaming_group):
         alive = {}
-        for player in self.gaming_group:
-            if player.get_status == 'alive':
+        for player in gaming_group:
+            if player.get_status() == 'alive':
                 alive[player.playerName] = player.get_role()
         if 'wolf' not in alive.values():
             if 'villager' not in alive.values():
