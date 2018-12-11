@@ -323,10 +323,17 @@ class ClientSM:
                         else:
                             if send_back["round"] == "poison":
                                 self.out_msg += send_back["message"]
-                            mysend(self.s, json.dumps({"action":"getDead"}))
-                            death = json.loads(myrecv(self.s))["results"]
-                            self.out_msg += death + " is dead tonight." + '\n'
-                            self.out_msg += '"CURE" + player\'s name to cure a player ("SKIPC" to skip).\n-----------------------------------\n'
+                            mysend(self.s, json.dumps({"action":"checkWitch"}))
+                            back = json.loads(myrecv(self.s))
+                            if back["cure"] == 1:
+                                death = back["death"]
+                                self.out_msg += death + '\n'
+                                self.out_msg += '"CURE" + player\'s name to cure a player ("SKIPC" to skip).\n-----------------------------------\n'
+                            else:
+                                self.out_msg += "You have used up your cure.\nNow go back to sleep.\n-----------------------------------\n."
+                                mysend(self.s, json.dumps({"action":"gaming", "round":"cure", "role":self.role, \
+                                                "from":"[" + self.me + "]", "message":"useup"}))
+                                self.set_gaming_state("asleep")
 
                     elif my_msg[:4] == "CURE":
                         cure = my_msg[4:]
@@ -348,11 +355,17 @@ class ClientSM:
                                                 "from":"[" + self.me + "]", "message":"skip"}))
                         send_back = json.loads(myrecv(self.s))
                         self.out_msg += send_back["message"]
-                        mysend(self.s, json.dumps({"action":"getDead"}))
-                        death = json.loads(myrecv(self.s))["results"]
-                        self.out_msg += death + " is dead tonight." + '\n'
-                        self.out_msg += '"CURE" + player\'s name to cure a player ("SKIPC" to skip).\n-----------------------------------\n'
-                            
+                        mysend(self.s, json.dumps({"action":"checkWitch"}))
+                        send_back = json.loads(myrecv(self.s))
+                        if send_back["cure"] == 1:
+                            death = send_back["death"]
+                            self.out_msg += death + '\n'
+                            self.out_msg += '"CURE" + player\'s name to cure a player ("SKIPC" to skip).\n-----------------------------------\n'
+                        else:
+                            self.out_msg += "You have used up your cure.\nNow go back to sleep.\n-----------------------------------\n."
+                            mysend(self.s, json.dumps({"action":"gaming", "round":"cure", "role":self.role, \
+                                                "from":"[" + self.me + "]", "message":"useup"}))
+                            self.set_gaming_state("asleep")
                     elif my_msg[:5] == "SKIPC":
                         mysend(self.s, json.dumps({"action":"gaming", "round":"cure", "role":self.role, \
                                                 "from":"[" + self.me + "]", "message":"skip"}))
@@ -366,7 +379,7 @@ class ClientSM:
                         
                 if len(peer_msg) > 0:    # peer's stuff, coming in
                     peer_msg = json.loads(peer_msg)
-                    if peer_msg["round"] == "action":
+                    if peer_msg["round"] == "action" and peer_msg["role"] == "wolf":
                         self.out_msg += peer_msg["from"] + peer_msg["message"]
                     elif peer_msg["round"] == "asleep":
                         if self.get_role() == "wolf":
@@ -379,15 +392,27 @@ class ClientSM:
                         mysend(self.s, json.dumps({"action":"gaming", "round":"discussion","from":"[" + self.me + "]", "message":""}))
                         self.out_msg += peer_msg["message"]
                         self.out_msg += "Now start the discussion: (type 'FIN' to finish)\n-----------------------------------\n"
+                    elif peer_msg["round"] == "end":
+                        self.out_msg += peer_msg["message"]
+                        self.state = S_LOGGEDIN
+                        self.disconnect()
+                        self.peer = ''
                     elif peer_msg["round"] == "poison":
                         if self.get_role() == peer_msg["role"]:
                             self.set_gaming_state("action")
                             self.out_msg += peer_msg["message"]
                             if self.get_role() == "witch":
-                                mysend(self.s, json.dumps({"action":"getDead"}))
-                                death = json.loads(myrecv(self.s))["results"]
-                                self.out_msg += death + " is dead tonight." + '\n'
-                                self.out_msg += '"CURE" + player\'s name to cure a player ("SKIPC" to skip).\n-----------------------------------\n'
+                                mysend(self.s, json.dumps({"action":"checkWitch"}))
+                                send_back = json.loads(myrecv(self.s))
+                                if send_back["cure"] == 1:
+                                    death = send_back["death"]
+                                    self.out_msg += death + '\n'
+                                    self.out_msg += '"CURE" + player\'s name to cure a player ("SKIPC" to skip).\n-----------------------------------\n'
+                                else:
+                                    self.out_msg += "You have used up your cure.\nNow go back to sleep.\n-----------------------------------\n."
+                                    mysend(self.s, json.dumps({"action":"gaming", "round":"cure", "role":self.role, \
+                                                "from":"[" + self.me + "]", "message":"useup"}))
+                                    self.set_gaming_state("asleep")
                     
                         
             elif self.gaming_state == "asleep":
@@ -406,11 +431,22 @@ class ClientSM:
                                 self.out_msg += 'Type "CHECK" + player\'s name to check their identity.\n-----------------------------------\n'
                                 self.set_gaming_state("action")
                             if self.get_role() == "witch":
-                                mysend(self.s, json.dumps({"action":"listAlive"}))
-                                logged_in = json.loads(myrecv(self.s))["results"]
-                                self.out_msg += "Now gaming: " + logged_in + '\n'
-                                self.out_msg += '"POISON" + player\'s name to poison a player ("SKIPP" to skip).\n-----------------------------------\n'
-                                self.set_gaming_state("action")
+                                mysend(self.s, json.dumps({"action":"checkWitch"}))
+                                logged_in = json.loads(myrecv(self.s))
+                                self.out_msg += "Now gaming: " + logged_in["results"] + '\n'
+                                if logged_in["poison"] == 1:
+                                    self.out_msg += '"POISON" + player\'s name to poison a player ("SKIPP" to skip).\n-----------------------------------\n'
+                                    self.set_gaming_state("action")
+                                else:
+                                    self.out_msg += "You have used up your poison.\n"
+                                    if logged_in["cure"] == 1:
+                                        self.out_msg += logged_in["death"] + '\n'
+                                        self.out_msg += '"CURE" + player\'s name to cure a player ("SKIPC" to skip).\n-----------------------------------\n'
+                                        self.set_gaming_state("action")
+                                    else:
+                                        self.out_msg += "You have used up your cure.\nNow go back to sleep.\n-----------------------------------\n"
+                                        mysend(self.s, json.dumps({"action":"gaming", "round":"cure", "role":self.role, \
+                                                "from":"[" + self.me + "]", "message":"useup"}))
                     elif peer_msg["round"] == "discuss":
                         self.set_gaming_state("discussion")
                         mysend(self.s, json.dumps({"action":"gaming", "round":"discussion","from":"[" + self.me + "]", "message":""}))
@@ -440,6 +476,7 @@ class ClientSM:
                 if len(peer_msg) > 0:
                     peer_msg = json.loads(peer_msg)
                     if peer_msg["round"] == "end":
+                        self.out_msg += peer_msg["message"]
                         self.state = S_LOGGEDIN
                         self.disconnect()
                         self.peer = ''
@@ -455,8 +492,6 @@ class ClientSM:
                         mysend(self.s, json.dumps({"action":"gaming", "round":"poll",\
                                                "from":"[" + self.me + "]", "message":my_msg}))
                       
-    
-    
     
                     elif peer_msg["round"] == "vote_result":
                         if peer_msg["round"] == "vote_result":
@@ -517,16 +552,19 @@ class ClientSM:
                             self.set_gaming_state("asleep")
                     elif peer_msg["round"] == "repoll":
                         self.set_gaming_state("poll")
-                        self.out_msg += "Tied! Please poll again!\n----------------------------------------------\n"
-                        mysend(self.s, json.dumps({"action":"listAlive"}))
-                        logged_in = json.loads(myrecv(self.s))["results"]
-                        self.out_msg += "Now alive: " + logged_in + '\n'
+                        self.out_msg += peer_msg["message"] + "\n----------------------------------------------\n"
+                        self.out_msg += "Now alive: " + peer_msg["result"] + '\n'
                         self.out_msg += "Please type the player name here:"
                         mysend(self.s, json.dumps({"action":"gaming", "round":"poll",\
                                                "from":"[" + self.me + "]", "message":my_msg}))
                     elif peer_msg["round"] == "asleep":
                         self.out_msg += peer_msg["message"]
                         self.set_gaming_state("asleep")
+                    elif peer_msg["round"] == "end":
+                        self.out_msg += peer_msg["message"]
+                        self.state = S_LOGGEDIN
+                        self.disconnect()
+                        self.peer = ''
                     else:
                         self.out_msg += peer_msg["message"]
             
@@ -539,6 +577,11 @@ class ClientSM:
                         self.state = S_LOGGEDIN
                     elif peer_msg["action"]== "gaming":
                         self.out_msg += peer_msg["from"] + peer_msg["message"]
+                    elif peer_msg["round"] == "end":
+                        self.out_msg += peer_msg["message"]
+                        self.state = S_LOGGEDIN
+                        self.disconnect()
+                        self.peer = ''
                 
                 
 

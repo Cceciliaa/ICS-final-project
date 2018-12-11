@@ -4,6 +4,8 @@ class Character:
         self.playerName = playerName
         self.status = 'alive'
         self.role = ''
+        self.poison = 0
+        self.cure = 0
         
     def set_status(self,new_status):
         self.status = new_status
