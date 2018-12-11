@@ -348,20 +348,27 @@ class Server:
                             for player in self.gaming_players:
                                 if player.playerName == self.newkilled:
                                     player.set_status("dead")
+                                    self.dead.append(player)
                                     break
                         elif self.newkilled == self.newpoisoned:
                             message += "Last night " + self.newkilled + " was killed.\n"
                             for player in self.gaming_players:
                                 if player.playerName == self.newkilled:
                                     player.set_status("dead")
+                                    self.dead.append(player)
                                     break
                         else:
                             message += "Last night " + self.newkilled + " and " + self.newpoisoned + " were killed.\n"
                             
                         if self.players.judge_result(self.gaming_players) == "continue":
-                            for player in self.gaming_players:    
+                            for player in self.gaming_players: 
                                 to_sock = self.logged_name2sock[player.playerName]
-                                mysend(to_sock, json.dumps({"action":"gaming","round":"discuss",\
+                                if player.get_status() == "alive":
+                                    mysend(to_sock, json.dumps({"action":"gaming","round":"discuss",\
+                                                                    "from":"server", "message": message}))
+                                else:
+                                    message += "The dead are not allowed to talk.\n-----------------------------------\n"
+                                    mysend(to_sock, json.dumps({"action":"gaming","round":"asleep",\
                                                                     "from":"server", "message": message}))
     
                         else:
@@ -395,22 +402,20 @@ class Server:
                             message += "No one was killed last night.\n----------------------------------------\n"
                         else:
                             message += "Last night " + self.newkilled + " was killed.\n----------------------------------------\n"
-                        for player in self.gaming_players:
-                            if player.playerName == self.newkilled:
-                                player.set_status("dead")
-                                break
-                    elif self.newkilled == self.newpoisoned:
-                        message += "Last night " + self.newkilled + " was killed.\n----------------------------------------\n"
-                    else:
-                        message += "Last night " + self.newkilled + " and " + self.newpoisoned + " were killed.\n----------------------------------------\n"
-                        for player in self.gaming_players:
-                            if player.playerName == self.newkilled:
-                                player.set_status("dead")
-                                break
+                            for player in self.gaming_players:
+                                if player.playerName == self.newkilled:
+                                    player.set_status("dead")
+                                    self.dead.append(player)
+                                    break
                     if self.players.judge_result(self.gaming_players) == "continue":
                         for player in self.gaming_players:    
                             to_sock = self.logged_name2sock[player.playerName]
-                            mysend(to_sock, json.dumps({"action":"gaming","round":"discuss",\
+                            if player.get_status() == "alive":
+                                    mysend(to_sock, json.dumps({"action":"gaming","round":"discuss",\
+                                                                    "from":"server", "message": message}))
+                            else:
+                                message += "The dead are not allowed to talk.\n-----------------------------------\n"
+                                mysend(to_sock, json.dumps({"action":"gaming","round":"asleep",\
                                                                 "from":"server", "message": message}))
                     else:
                         message += "Game ends! Winning side: " + self.players.judge_result(self.gaming_players)
@@ -467,6 +472,7 @@ class Server:
                         for player in self.gaming_players:
                             if player.playerName == self.newkilled:
                                 player.set_status("dead")
+                                self.dead.append(player)
                                 break
                     elif self.newkilled == self.newpoisoned:
                         message += "Last night " + self.newkilled + " was killed.\n----------------------------------------\n"
@@ -475,11 +481,17 @@ class Server:
                         for player in self.gaming_players:
                             if player.playerName == self.newkilled:
                                 player.set_status("dead")
+                                self.dead.append(player)
                                 break
                     if self.players.judge_result(self.gaming_players) == "continue":
                         for player in self.gaming_players:    
                             to_sock = self.logged_name2sock[player.playerName]
-                            mysend(to_sock, json.dumps({"action":"gaming","round":"discuss",\
+                            if player.get_status() == "alive":
+                                    mysend(to_sock, json.dumps({"action":"gaming","round":"discuss",\
+                                                                    "from":"server", "message": message}))
+                            else:
+                                message += "The dead are not allowed to talk.\n-----------------------------------\n"
+                                mysend(to_sock, json.dumps({"action":"gaming","round":"asleep",\
                                                                 "from":"server", "message": message}))
                     else:
                         message += "Game ends! Winning side: " + self.players.judge_result(self.gaming_players)
@@ -550,6 +562,7 @@ class Server:
                                     for player in self.gaming_players:
                                         if player.playerName == eliminate:
                                             player.set_status("dead")
+                                            self.dead.append(player)
                                     if self.players.judge_result(self.gaming_players) == "continue":
                                         for g in the_guys:
                                             to_sock = self.logged_name2sock[g]

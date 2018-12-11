@@ -5,6 +5,7 @@ Created on Sun Apr  5 00:00:32 2015
 """
 from chat_utils import *
 import json
+import character
 
 class ClientSM:
     def __init__(self, s):
@@ -15,7 +16,6 @@ class ClientSM:
         self.out_msg = ''
         self.s = s
         self.role = ''
-        self.gstatus = ''
 
     def set_state(self, state):
         self.state = state
@@ -369,14 +369,16 @@ class ClientSM:
                     if peer_msg["round"] == "action":
                         self.out_msg += peer_msg["from"] + peer_msg["message"]
                     elif peer_msg["round"] == "asleep":
-                        self.out_msg += "You have killed " + peer_msg["message"] + ", now please go back to sleep.\n" + "\n-----------------------------------\n"
+                        if self.get_role() == "wolf":
+                            self.out_msg += "You have killed " + peer_msg["message"] + ", now please go back to sleep.\n" + "\n-----------------------------------\n"
+                        else:
+                            self.out_msg += peer_msg["message"]
                         self.set_gaming_state("asleep")
                     elif peer_msg["round"] == "discuss":
                         self.set_gaming_state("discussion")
                         mysend(self.s, json.dumps({"action":"gaming", "round":"discussion","from":"[" + self.me + "]", "message":""}))
                         self.out_msg += peer_msg["message"]
                         self.out_msg += "Now start the discussion: (type 'FIN' to finish)\n-----------------------------------\n"
-                        
                     elif peer_msg["round"] == "poison":
                         if self.get_role() == peer_msg["role"]:
                             self.set_gaming_state("action")
@@ -419,6 +421,9 @@ class ClientSM:
                         self.state = S_LOGGEDIN
                         self.disconnect()
                         self.peer = ''
+                    elif peer_msg["round"] == "asleep":
+                        self.out_msg += peer_msg["message"]
+                        self.set_gaming_state("asleep")
                         
 
             elif self.gaming_state == "discussion":
@@ -440,17 +445,16 @@ class ClientSM:
                         self.peer = ''
                     #POLL
                     elif peer_msg["round"] == "poll":
+         
                         self.set_gaming_state("poll")
                         #self.gaming_state = "poll"
                         self.out_msg += "Now comes the poll!\n----------------------------------------------\n"
                         logged_in = peer_msg["result"]
-# =============================================================================
-#                         logged_in = json.loads(myrecv(self.s))["results"]
-# =============================================================================
                         self.out_msg += "Now alive: " + logged_in + '\n'
                         self.out_msg += "Please type the player name here:"
                         mysend(self.s, json.dumps({"action":"gaming", "round":"poll",\
                                                "from":"[" + self.me + "]", "message":my_msg}))
+                      
     
     
     
@@ -476,6 +480,9 @@ class ClientSM:
                                 self.out_msg += '''To kill a player, type "KILL" + player's name.\n'''
                         else:
                             self.set_gaming_state("asleep")
+                    elif peer_msg["round"] == "asleep":
+                        self.out_msg += peer_msg["message"]
+                        self.set_gaming_state("asleep")
                     else:
                         self.out_msg += peer_msg["from"] + peer_msg["message"]
             elif self.gaming_state == "poll":
@@ -486,7 +493,7 @@ class ClientSM:
                     peer_msg = json.loads(peer_msg)
                     if peer_msg["round"] == "vote_result":
                         self.out_msg += peer_msg["message"]
-                        self.out_msg += "Night is coming, please close your eyes...\n"
+                        self.out_msg += "Night is coming, please close your eyes...\n----------------------------------------\n"
                         if self.get_role() == "wolf":
                             mysend(self.s, json.dumps({"action":"checkAlive"}))
                             result = json.loads(myrecv(self.s))
@@ -502,7 +509,10 @@ class ClientSM:
                                 mysend(self.s, json.dumps({"action":"listAlive"}))
                                 logged_in = json.loads(myrecv(self.s))["results"]
                                 self.out_msg += "Now gaming: " + logged_in + '\n'
-                                self.out_msg += '''To kill a player, type "KILL" + player's name.\n'''
+                                self.out_msg += '''To kill a player, type "KILL" + player's name.\n----------------------------------------\n'''
+                            else:
+                                self.out_msg += "The dead are not allowed to execute.\n----------------------------------------\n"
+                                self.set_gaming_state("asleep")
                         else:
                             self.set_gaming_state("asleep")
                     elif peer_msg["round"] == "repoll":
@@ -514,6 +524,9 @@ class ClientSM:
                         self.out_msg += "Please type the player name here:"
                         mysend(self.s, json.dumps({"action":"gaming", "round":"poll",\
                                                "from":"[" + self.me + "]", "message":my_msg}))
+                    elif peer_msg["round"] == "asleep":
+                        self.out_msg += peer_msg["message"]
+                        self.set_gaming_state("asleep")
                     else:
                         self.out_msg += peer_msg["message"]
             
