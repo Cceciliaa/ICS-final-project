@@ -467,6 +467,10 @@ class Server:
                     from_name = self.logged_sock2name[from_sock]
                     the_guys = self.group.list_me(from_name)
                     message = msg["message"]
+                    for g in the_guys[1:]:
+                        to_sock = self.logged_name2sock[g]
+                        mysend(to_sock, json.dumps({"action":"gaming","round":"poll", "from":msg["from"], "message":""}))
+
 
                         #mysend(from_sock, json.dumps({"action":"gaming","round":"poll", "from":msg["from"],"message":"Tied! please vote again (Can't eliminate more than one player):"}))
                     for player in self.gaming_players:
